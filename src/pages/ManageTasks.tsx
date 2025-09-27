@@ -495,36 +495,8 @@ export default function ManageTasks() {
           </div>
         </div>
 
-        {/* Day Filter */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Filter by Day</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                variant={selectedDay === 'all' ? 'default' : 'outline'}
-                onClick={() => setSelectedDay('all')}
-                size="sm"
-              >
-                All Days
-              </Button>
-              {DAYS_OF_WEEK.map((day) => (
-                <Button
-                  key={day.id}
-                  variant={selectedDay === day.id ? 'default' : 'outline'}
-                  onClick={() => setSelectedDay(day.id)}
-                  size="sm"
-                >
-                  {day.label}
-                </Button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Tasks List */}
-        <Card>
+        <Card className="mb-6">
           <CardHeader>
             <CardTitle>Tasks ({tasks.length})</CardTitle>
           </CardHeader>
@@ -554,6 +526,34 @@ export default function ManageTasks() {
                 </SortableContext>
               </DndContext>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Day Filter */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Filter by Day</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant={selectedDay === 'all' ? 'default' : 'outline'}
+                onClick={() => setSelectedDay('all')}
+                size="sm"
+              >
+                All Days
+              </Button>
+              {DAYS_OF_WEEK.map((day) => (
+                <Button
+                  key={day.id}
+                  variant={selectedDay === day.id ? 'default' : 'outline'}
+                  onClick={() => setSelectedDay(day.id)}
+                  size="sm"
+                >
+                  {day.label}
+                </Button>
+              ))}
+            </div>
           </CardContent>
         </Card>
 
