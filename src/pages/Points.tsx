@@ -338,7 +338,10 @@ export default function Points() {
                   ...prev, 
                   points: Math.max(1, Math.min(50, parseInt(e.target.value) || 1))
                 }))}
+                onFocus={(e) => (e.target as HTMLInputElement).select()} // Select all text when focused
+                onClick={(e) => (e.target as HTMLInputElement).select()} // Select all text when clicked
                 className="text-center text-lg font-bold"
+                autoComplete="off"
               />
             </div>
 
