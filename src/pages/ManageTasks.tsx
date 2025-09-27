@@ -301,13 +301,19 @@ export default function ManageTasks() {
         
         for (const childId of formData.assignTo) {
           for (const day of formData.days) {
-            // Calculate the date for the day
+            // Calculate the date for the current week's occurrence of this day
             const today = new Date();
             const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
             const dayIndex = DAYS_OF_WEEK.findIndex(d => d.id === day);
-            const daysUntilTarget = (dayIndex + 1 - currentDay + 7) % 7;
-            const targetDate = new Date(today);
-            targetDate.setDate(today.getDate() + daysUntilTarget);
+            const targetDayOfWeek = (dayIndex + 1) % 7; // Convert to JS day format (0 = Sunday)
+            
+            // Get the start of current week (Sunday)
+            const startOfWeek = new Date(today);
+            startOfWeek.setDate(today.getDate() - currentDay);
+            
+            // Calculate the target date for this week
+            const targetDate = new Date(startOfWeek);
+            targetDate.setDate(startOfWeek.getDate() + targetDayOfWeek);
             
             assignments.push({
               user_id: user.id,
