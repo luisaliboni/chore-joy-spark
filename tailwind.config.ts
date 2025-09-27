@@ -13,6 +13,10 @@ export default {
       },
     },
     extend: {
+      screens: {
+        'tablet': '768px',
+        'desktop': '1024px',
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

@@ -59,24 +59,24 @@ function SortableTaskItem({ task, onEdit, onDelete }: {
   onDelete: (id: string) => void; 
 }) {
   return (
-    <div className="flex items-center gap-4 p-4 border rounded-lg bg-card">
-      <div className="text-2xl">
+    <div className="flex items-center gap-responsive p-responsive border rounded-lg bg-card">
+      <div className="text-xl tablet:text-2xl desktop:text-3xl">
         {task.icon.startsWith('http') ? (
-          <img src={task.icon} alt="Task icon" className="w-8 h-8 object-cover rounded" />
+          <img src={task.icon} alt="Task icon" className="icon-responsive object-cover rounded" />
         ) : (
           task.icon
         )}
       </div>
-      <div className="flex-1">
-        <h3 className="font-medium">{task.title}</h3>
-        <p className="text-sm text-muted-foreground">{task.points} points</p>
+      <div className="flex-1 min-w-0">
+        <h3 className="font-medium text-responsive-sm">{task.title}</h3>
+        <p className="text-responsive-xs text-muted-foreground">{task.points} points</p>
       </div>
       <div className="flex gap-2">
-        <Button size="sm" variant="outline" onClick={() => onEdit(task)}>
-          <Edit className="h-4 w-4" />
+        <Button size="sm" variant="outline" onClick={() => onEdit(task)} className="touch-target">
+          <Edit className="icon-responsive-sm" />
         </Button>
-        <Button size="sm" variant="destructive" onClick={() => onDelete(task.id)}>
-          <Trash2 className="h-4 w-4" />
+        <Button size="sm" variant="destructive" onClick={() => onDelete(task.id)} className="touch-target">
+          <Trash2 className="icon-responsive-sm" />
         </Button>
       </div>
     </div>
@@ -438,38 +438,38 @@ export default function ManageTasks() {
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-child1/10 p-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col tablet:flex-row items-center justify-between mb-6 tablet:mb-8 gap-4">
           <Button
             variant="ghost"
             onClick={() => navigate('/')}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 text-responsive-sm"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="icon-responsive-sm" />
             Back to Chores
           </Button>
           
-          <h1 className="text-2xl font-bold">Manage Tasks</h1>
+          <h1 className="text-responsive-xl font-bold">Manage Tasks</h1>
           
-          <div className="flex gap-2">
-            <Button onClick={() => navigate('/manage-routines')} variant="outline">
-              📋 Routines
+          <div className="flex flex-wrap gap-2 justify-center tablet:justify-end">
+            <Button onClick={() => navigate('/manage-routines')} variant="outline" className="text-responsive-sm">
+              📋 <span className="hidden tablet:inline">Routines</span>
             </Button>
             
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="flex items-center gap-2">
-                  <Plus className="h-4 w-4" />
+                <Button className="flex items-center gap-2 text-responsive-sm">
+                  <Plus className="icon-responsive-sm" />
                   Add Task
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                  <DialogTitle>{editingTask ? 'Edit Task' : 'Create New Task'}</DialogTitle>
+                  <DialogTitle className="text-responsive-lg">{editingTask ? 'Edit Task' : 'Create New Task'}</DialogTitle>
                 </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid grid-cols-2 gap-4">
+                <form onSubmit={handleSubmit} className="space-y-4 tablet:space-y-6">
+                  <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="title">Task Title</Label>
+                      <Label htmlFor="title" className="text-responsive-sm">Task Title</Label>
                       <Input
                         id="title"
                         value={formData.title}
@@ -479,7 +479,7 @@ export default function ManageTasks() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="points">Points</Label>
+                      <Label htmlFor="points" className="text-responsive-sm">Points</Label>
                       <Input
                         id="points"
                         type="number"

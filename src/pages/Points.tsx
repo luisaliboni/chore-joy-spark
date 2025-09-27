@@ -172,26 +172,26 @@ export default function Points() {
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-child2/10 p-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col tablet:flex-row items-center justify-between mb-6 tablet:mb-8 gap-4">
           <Button
             variant="ghost"
             onClick={() => navigate('/')}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 text-responsive-sm"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="icon-responsive-sm" />
             Back to Chores
           </Button>
           
           <div className="text-center">
-            <h1 className="text-2xl font-bold">Points & Rewards</h1>
-            <p className="text-muted-foreground">{getCurrentWeek()}</p>
+            <h1 className="text-responsive-xl font-bold">Points & Rewards</h1>
+            <p className="text-responsive-sm text-muted-foreground">{getCurrentWeek()}</p>
           </div>
           
-          <div />
+          <div className="tablet:w-24" />
         </div>
 
         {/* Children Points Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 tablet:gap-6 mb-6 tablet:mb-8">
           {children.map((child) => (
             <Card key={child.id} className="overflow-hidden">
               <CardHeader 
@@ -206,30 +206,31 @@ export default function Points() {
                   ⭐ {child.name}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-6">
-                <div className="text-center mb-6">
-                  <div className="text-4xl font-bold mb-2">{child.weekly_points}</div>
-                  <div className="text-sm text-muted-foreground">Points This Week</div>
-                  <div className="mt-2 text-xs text-muted-foreground">
+              <CardContent className="p-responsive">
+                <div className="text-center mb-4 tablet:mb-6">
+                  <div className="text-3xl tablet:text-4xl desktop:text-5xl font-bold mb-2">{child.weekly_points}</div>
+                  <div className="text-responsive-sm text-muted-foreground">Points This Week</div>
+                  <div className="mt-2 text-responsive-xs text-muted-foreground">
                     Achievement Level: {child.weekly_points >= 50 ? 'Chore Champion' : 'Getting There'}
                   </div>
                 </div>
                 
-                <div className="flex gap-2 justify-center">
+                <div className="flex flex-col tablet:flex-row gap-2 justify-center">
                   <Button
                     size="sm"
                     onClick={() => openPointsDialog(child.id, child.name, 'good')}
-                    className="bg-success text-white"
+                    className="bg-success text-white text-responsive-xs touch-target"
                   >
-                    <Plus className="h-4 w-4 mr-1" />
+                    <Plus className="icon-responsive-sm mr-1" />
                     Good Behavior
                   </Button>
                   <Button
                     size="sm"
                     variant="destructive"
                     onClick={() => openPointsDialog(child.id, child.name, 'bad')}
+                    className="text-responsive-xs touch-target"
                   >
-                    <Minus className="h-4 w-4 mr-1" />
+                    <Minus className="icon-responsive-sm mr-1" />
                     Bad Behavior
                   </Button>
                 </div>
@@ -251,22 +252,29 @@ export default function Points() {
                 No rewards available. Add some in the settings!
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 desktop:grid-cols-2 gap-4">
                 {rewards.map((reward) => (
-                  <div key={reward.id} className="flex items-center gap-4 p-4 border rounded-lg">
-                    <div className="text-2xl">{reward.icon}</div>
-                    <div className="flex-1">
-                      <h3 className="font-medium">{reward.title}</h3>
+                  <div key={reward.id} className="flex items-center gap-responsive p-responsive border rounded-lg">
+                    <div className="text-xl tablet:text-2xl desktop:text-3xl">
+                      {reward.icon.startsWith('http') ? (
+                        <img src={reward.icon} alt="Reward icon" className="icon-responsive object-cover rounded" />
+                      ) : (
+                        reward.icon
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-responsive-sm">{reward.title}</h3>
                     </div>
                     <div className="text-center">
-                      <div className="text-lg font-bold text-primary">{reward.cost_points} Points</div>
-                      <div className="flex gap-1 mt-2">
+                      <div className="text-responsive-base font-bold text-primary">{reward.cost_points} Points</div>
+                      <div className="flex flex-col tablet:flex-row gap-1 mt-2">
                         {children.map((child) => (
                           <Button
                             key={child.id}
                             size="sm"
                             disabled={child.weekly_points < reward.cost_points}
                             onClick={() => redeemReward(child.id, reward)}
+                            className="text-responsive-xs touch-target"
                             style={{
                               backgroundColor: child.weekly_points >= reward.cost_points 
                                 ? (child.child_order === 1 ? 'hsl(var(--child1-color))' : 'hsl(var(--child2-color))')

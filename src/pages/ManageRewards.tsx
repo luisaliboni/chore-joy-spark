@@ -57,43 +57,43 @@ function SortableRewardItem({ reward, onEdit, onDelete, onToggleAvailability }: 
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-4 p-4 border rounded-lg transition-all ${
+      className={`flex items-center gap-responsive p-responsive border rounded-lg transition-all ${
         reward.is_available ? 'bg-card' : 'bg-muted/50 opacity-60'
       }`}
     >
       <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
-        <GripVertical className="h-5 w-5 text-muted-foreground" />
+        <GripVertical className="icon-responsive-sm text-muted-foreground" />
       </div>
-      <div className="text-2xl min-w-[2rem] h-8 flex items-center justify-center">
+      <div className="text-xl tablet:text-2xl desktop:text-3xl min-w-[2rem] h-8 tablet:h-10 desktop:h-12 flex items-center justify-center">
         {reward.icon.startsWith('http') ? (
           <img 
             src={reward.icon} 
             alt="Reward icon" 
-            className="w-8 h-8 object-cover rounded"
+            className="icon-responsive object-cover rounded"
           />
         ) : (
           reward.icon
         )}
       </div>
-      <div className="flex-1">
-        <h3 className="font-medium">{reward.title}</h3>
-        <p className="text-sm text-muted-foreground">{reward.cost_points} points</p>
+      <div className="flex-1 min-w-0">
+        <h3 className="font-medium text-responsive-sm">{reward.title}</h3>
+        <p className="text-responsive-xs text-muted-foreground">{reward.cost_points} points</p>
       </div>
       <div className="flex items-center gap-2">
         <Switch
           checked={reward.is_available}
           onCheckedChange={(checked) => onToggleAvailability(reward.id, checked)}
         />
-        <span className="text-xs text-muted-foreground">
+        <span className="text-responsive-xs text-muted-foreground">
           {reward.is_available ? 'Available' : 'Hidden'}
         </span>
       </div>
       <div className="flex gap-2">
-        <Button size="sm" variant="outline" onClick={() => onEdit(reward)}>
-          <Edit className="h-4 w-4" />
+        <Button size="sm" variant="outline" onClick={() => onEdit(reward)} className="touch-target">
+          <Edit className="icon-responsive-sm" />
         </Button>
-        <Button size="sm" variant="destructive" onClick={() => onDelete(reward.id)}>
-          <Trash2 className="h-4 w-4" />
+        <Button size="sm" variant="destructive" onClick={() => onDelete(reward.id)} className="touch-target">
+          <Trash2 className="icon-responsive-sm" />
         </Button>
       </div>
     </div>
@@ -274,25 +274,25 @@ export default function ManageRewards() {
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-child2/10 p-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col tablet:flex-row items-center justify-between mb-6 tablet:mb-8 gap-4">
           <Button
             variant="ghost"
             onClick={() => navigate('/settings')}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 text-responsive-sm"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="icon-responsive-sm" />
             Back to Settings
           </Button>
           
           <div className="text-center">
-            <h1 className="text-2xl font-bold">Manage Rewards</h1>
-            <p className="text-muted-foreground">Set up rewards that kids can earn with their points</p>
+            <h1 className="text-responsive-xl font-bold">Manage Rewards</h1>
+            <p className="text-responsive-sm text-muted-foreground">Set up rewards that kids can earn with their points</p>
           </div>
           
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />
+              <Button className="flex items-center gap-2 text-responsive-sm">
+                <Plus className="icon-responsive-sm" />
                 Add Reward
               </Button>
             </DialogTrigger>

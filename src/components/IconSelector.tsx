@@ -369,29 +369,29 @@ export function IconSelector({ selectedIcon, onIconSelect }: IconSelectorProps) 
       )}
 
       {/* Icons Grid */}
-      <div className="border rounded-lg p-3">
-        <ScrollArea className="h-72 w-full">
-          <div className="grid grid-cols-6 gap-1">
+      <div className="border rounded-lg p-responsive">
+        <ScrollArea className="h-60 tablet:h-72 desktop:h-80 w-full">
+          <div className="grid grid-cols-4 tablet:grid-cols-6 desktop:grid-cols-8 gap-2">
             {filteredIcons.map((icon, index) => (
               <div key={`${selectedCategory}-${index}`} className="relative group">
                 <Button
                   type="button"
                   variant={selectedIcon === icon ? 'default' : 'outline'}
-                  className="aspect-square p-1 h-16 w-16 text-2xl relative hover:scale-105 transition-transform w-full"
+                  className="aspect-square p-1 h-12 w-12 tablet:h-16 tablet:w-16 desktop:h-20 desktop:w-20 text-lg tablet:text-xl desktop:text-2xl relative hover:scale-105 transition-transform w-full touch-target"
                   onClick={() => onIconSelect(icon)}
                 >
                   {icon.startsWith('http') ? (
                     <img 
                       src={icon} 
                       alt="Custom icon" 
-                      className="w-12 h-12 object-cover rounded"
+                      className="w-8 h-8 tablet:w-12 tablet:h-12 desktop:w-16 desktop:h-16 object-cover rounded"
                     />
                   ) : (
                     icon
                   )}
                   {selectedIcon === icon && (
                     <div className="absolute inset-0 bg-primary/20 rounded flex items-center justify-center">
-                      <div className="w-3 h-3 bg-primary rounded-full"></div>
+                      <div className="w-2 h-2 tablet:w-3 tablet:h-3 bg-primary rounded-full"></div>
                     </div>
                   )}
                 </Button>
@@ -401,13 +401,13 @@ export function IconSelector({ selectedIcon, onIconSelect }: IconSelectorProps) 
                     type="button"
                     variant="destructive"
                     size="sm"
-                    className="absolute -top-1 -right-1 h-6 w-6 rounded-full p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute -top-1 -right-1 h-5 w-5 tablet:h-6 tablet:w-6 rounded-full p-0 opacity-0 group-hover:opacity-100 transition-opacity touch-target"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDeleteIcon(icon);
                     }}
                   >
-                    <X className="h-3 w-3" />
+                    <X className="h-2 w-2 tablet:h-3 tablet:w-3" />
                   </Button>
                 )}
               </div>

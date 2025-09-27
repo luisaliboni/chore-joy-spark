@@ -67,7 +67,7 @@ function SortableTaskAssignment({ assignment, child, onComplete, onUndo }: {
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-4 p-4 rounded-lg border transition-all ${
+      className={`flex items-center gap-responsive p-responsive rounded-lg border transition-all ${
         assignment.is_completed
           ? 'bg-success/10 border-success/20'
           : 'bg-card hover:bg-accent/50'
@@ -76,19 +76,19 @@ function SortableTaskAssignment({ assignment, child, onComplete, onUndo }: {
       <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
         <GripVertical className="h-4 w-4 text-muted-foreground" />
       </div>
-      <div className="text-4xl">
+      <div className="text-2xl tablet:text-3xl desktop:text-4xl">
         {assignment.tasks.icon.startsWith('http') ? (
-          <img src={assignment.tasks.icon} alt="Task icon" className="w-12 h-12 object-cover rounded" />
+          <img src={assignment.tasks.icon} alt="Task icon" className="icon-responsive object-cover rounded" />
         ) : (
           assignment.tasks.icon
         )}
       </div>
-      <div className="flex-1">
-        <h3 className={`font-medium ${assignment.is_completed ? 'line-through text-muted-foreground' : ''}`}>
+      <div className="flex-1 min-w-0">
+        <h3 className={`font-medium text-responsive-sm ${assignment.is_completed ? 'line-through text-muted-foreground' : ''}`}>
           {assignment.tasks.title}
         </h3>
       </div>
-      <div className="text-sm text-muted-foreground">
+      <div className="text-responsive-xs text-muted-foreground whitespace-nowrap">
         {assignment.tasks.points} pts
       </div>
       {assignment.is_completed ? (
@@ -297,21 +297,22 @@ export default function Chores() {
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-child1/10 p-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col tablet:flex-row items-center justify-between mb-6 tablet:mb-8 gap-4">
+          <div className="flex items-center gap-2 tablet:gap-4">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => navigateDate('prev')}
+              className="touch-target"
             >
-              <ChevronLeft className="h-5 w-5" />
+              <ChevronLeft className="icon-responsive-sm" />
             </Button>
             
             <div className="text-center">
-              <h1 className="text-2xl font-bold">
+              <h1 className="text-responsive-xl font-bold">
                 Daily Chores - {format(currentDate, 'EEEE')}
               </h1>
-              <p className="text-muted-foreground">
+              <p className="text-responsive-sm text-muted-foreground">
                 {format(currentDate, 'MMMM dd, yyyy')}
               </p>
             </div>
@@ -320,52 +321,55 @@ export default function Chores() {
               variant="ghost"
               size="icon"
               onClick={() => navigateDate('next')}
+              className="touch-target"
             >
-              <ChevronRight className="h-5 w-5" />
+              <ChevronRight className="icon-responsive-sm" />
             </Button>
           </div>
 
-          <div className="flex gap-2">
-            <Button onClick={() => navigate('/points')} className="bg-gradient-primary">
-              🏆 Points
+          <div className="flex flex-wrap gap-2 justify-center tablet:justify-end">
+            <Button onClick={() => navigate('/points')} className="bg-gradient-primary text-responsive-sm">
+              🏆 <span className="hidden tablet:inline">Points</span>
             </Button>
             <Button 
               variant="outline" 
               onClick={() => navigate('/manage-tasks')}
+              className="text-responsive-sm"
             >
-              <Plus className="w-4 h-4 mr-2" />
-              Manage Tasks
+              <Plus className="icon-responsive-sm mr-1 tablet:mr-2" />
+              <span className="hidden tablet:inline">Manage </span>Tasks
             </Button>
             <Button 
               variant="ghost" 
               size="icon"
               onClick={() => navigate('/settings')}
+              className="touch-target"
             >
-              <Settings className="h-5 w-5" />
+              <Settings className="icon-responsive-sm" />
             </Button>
           </div>
         </div>
 
         {/* Children Columns */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 tablet:gap-6">
           {children.map((child) => (
             <div key={child.id} className="space-y-4">
               {/* Child Header */}
               <div 
-                className="rounded-lg p-6 text-white"
+                className="rounded-lg p-responsive text-white"
                 style={{
                   background: child.child_order === 1 
                     ? 'var(--gradient-child1)' 
                     : 'var(--gradient-child2)'
                 }}
               >
-                <h2 className="text-xl font-bold">{child.name}</h2>
-                <div className="flex items-center justify-between mt-2">
-                  <span className="text-sm opacity-90">
+                <h2 className="text-responsive-lg font-bold">{child.name}</h2>
+                <div className="flex flex-col tablet:flex-row tablet:items-center justify-between mt-2 gap-2">
+                  <span className="text-responsive-sm opacity-90">
                     {taskAssignments[child.id]?.filter(t => t.is_completed).length || 0}/
                     {taskAssignments[child.id]?.length || 0} completed
                   </span>
-                  <span className="text-lg font-bold">
+                  <span className="text-responsive-base font-bold">
                     {child.weekly_points} pts this week
                   </span>
                 </div>
