@@ -3,6 +3,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { ArrowLeft, Plus, Minus, RotateCcw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -29,6 +32,19 @@ export default function Points() {
   const [children, setChildren] = useState<Child[]>([]);
   const [rewards, setRewards] = useState<Reward[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pointsDialog, setPointsDialog] = useState<{
+    isOpen: boolean;
+    childId: string;
+    childName: string;
+    type: 'good' | 'bad';
+    points: number;
+  }>({
+    isOpen: false,
+    childId: '',
+    childName: '',
+    type: 'good',
+    points: 5
+  });
 
   useEffect(() => {
     if (user) {
@@ -64,19 +80,31 @@ export default function Points() {
     }
   };
 
-  const adjustPoints = async (childId: string, adjustment: number, type: 'good' | 'bad') => {
+  const openPointsDialog = (childId: string, childName: string, type: 'good' | 'bad') => {
+    setPointsDialog({
+      isOpen: true,
+      childId,
+      childName,
+      type,
+      points: 5
+    });
+  };
+
+  const adjustPoints = async () => {
     try {
-      const child = children.find(c => c.id === childId);
+      const child = children.find(c => c.id === pointsDialog.childId);
       if (!child) return;
 
+      const adjustment = pointsDialog.type === 'good' ? pointsDialog.points : -pointsDialog.points;
       const newPoints = Math.max(0, child.weekly_points + adjustment);
       
       await supabase
         .from('children')
         .update({ weekly_points: newPoints })
-        .eq('id', childId);
+        .eq('id', pointsDialog.childId);
 
-      toast.success(`${type === 'good' ? 'Added' : 'Removed'} ${Math.abs(adjustment)} points!`);
+      toast.success(`${pointsDialog.type === 'good' ? 'Added' : 'Removed'} ${pointsDialog.points} points to ${pointsDialog.childName}!`);
+      setPointsDialog(prev => ({ ...prev, isOpen: false }));
       fetchData();
     } catch (error) {
       console.error('Error adjusting points:', error);
@@ -190,7 +218,7 @@ export default function Points() {
                 <div className="flex gap-2 justify-center">
                   <Button
                     size="sm"
-                    onClick={() => adjustPoints(child.id, 5, 'good')}
+                    onClick={() => openPointsDialog(child.id, child.name, 'good')}
                     className="bg-success text-white"
                   >
                     <Plus className="h-4 w-4 mr-1" />
@@ -199,7 +227,7 @@ export default function Points() {
                   <Button
                     size="sm"
                     variant="destructive"
-                    onClick={() => adjustPoints(child.id, -5, 'bad')}
+                    onClick={() => openPointsDialog(child.id, child.name, 'bad')}
                   >
                     <Minus className="h-4 w-4 mr-1" />
                     Bad Behavior
@@ -273,6 +301,58 @@ export default function Points() {
           </Button>
         </div>
       </div>
+
+      {/* Points Adjustment Dialog */}
+      <Dialog open={pointsDialog.isOpen} onOpenChange={(open) => setPointsDialog(prev => ({ ...prev, isOpen: open }))}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {pointsDialog.type === 'good' ? '🌟 Good Behavior!' : '⚠️ Bad Behavior'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-muted-foreground">
+              {pointsDialog.type === 'good' 
+                ? `How many points would you like to add to ${pointsDialog.childName}?`
+                : `How many points would you like to deduct from ${pointsDialog.childName}?`
+              }
+            </p>
+            
+            <div className="space-y-2">
+              <Label htmlFor="points">Points</Label>
+              <Input
+                id="points"
+                type="number"
+                min="1"
+                max="50"
+                value={pointsDialog.points}
+                onChange={(e) => setPointsDialog(prev => ({ 
+                  ...prev, 
+                  points: Math.max(1, Math.min(50, parseInt(e.target.value) || 1))
+                }))}
+                className="text-center text-lg font-bold"
+              />
+            </div>
+
+            <div className="flex gap-2 mt-6">
+              <Button
+                variant="outline"
+                onClick={() => setPointsDialog(prev => ({ ...prev, isOpen: false }))}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={adjustPoints}
+                className={pointsDialog.type === 'good' ? 'bg-success text-white flex-1' : 'flex-1'}
+                variant={pointsDialog.type === 'good' ? 'default' : 'destructive'}
+              >
+                {pointsDialog.type === 'good' ? 'Add Points' : 'Deduct Points'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
