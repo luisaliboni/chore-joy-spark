@@ -124,6 +124,33 @@ export default function Chores() {
     }
   };
 
+  const handleTaskUndo = async (childId: string, assignmentId: string, points: number) => {
+    try {
+      // Update task to uncompleted
+      await supabase
+        .from('task_assignments')
+        .update({ 
+          is_completed: false,
+          completed_at: null
+        })
+        .eq('id', assignmentId);
+
+      // Remove points from child's weekly total
+      const child = children.find(c => c.id === childId);
+      if (child) {
+        await supabase
+          .from('children')
+          .update({ weekly_points: Math.max(0, child.weekly_points - points) })
+          .eq('id', childId);
+      }
+
+      // Refresh data
+      fetchData();
+    } catch (error) {
+      console.error('Error undoing task:', error);
+    }
+  };
+
   const navigateDate = (direction: 'prev' | 'next') => {
     setCurrentDate(prev => 
       direction === 'prev' ? subDays(prev, 1) : addDays(prev, 1)
@@ -231,23 +258,38 @@ export default function Chores() {
                       {assignment.tasks.icon}
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-medium">{assignment.tasks.title}</h3>
+                      <h3 className={`font-medium ${assignment.is_completed ? 'line-through text-muted-foreground' : ''}`}>
+                        {assignment.tasks.title}
+                      </h3>
                     </div>
                     <div className="text-sm text-muted-foreground">
                       {assignment.tasks.points} pts
                     </div>
-                    <Button
-                      size="sm"
-                      disabled={assignment.is_completed}
-                      onClick={() => handleTaskComplete(
-                        child.id, 
-                        assignment.id, 
-                        assignment.tasks.points
-                      )}
-                      className={assignment.is_completed ? 'bg-success' : ''}
-                    >
-                      {assignment.is_completed ? '✓ Done' : 'Complete'}
-                    </Button>
+                    {assignment.is_completed ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleTaskUndo(
+                          child.id, 
+                          assignment.id, 
+                          assignment.tasks.points
+                        )}
+                        className="bg-success/20 hover:bg-success/30"
+                      >
+                        ↩️ Undo
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        onClick={() => handleTaskComplete(
+                          child.id, 
+                          assignment.id, 
+                          assignment.tasks.points
+                        )}
+                      >
+                        Complete
+                      </Button>
+                    )}
                   </div>
                 ))}
                 
