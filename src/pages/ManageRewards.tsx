@@ -15,6 +15,7 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSo
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { IconSelector } from '@/components/IconSelector';
 
 interface Reward {
   id: string;
@@ -32,10 +33,6 @@ interface RewardFormData {
   is_available: boolean;
 }
 
-const REWARD_ICONS = [
-  '📱', '🎮', '🍭', '🍦', '🎬', '🎵', '⚽', '🏀', '🎨', '📚',
-  '🧸', '🚗', '🎁', '🏆', '⭐', '💎', '🎪', '🎊', '🎈', '🍕'
-];
 
 function SortableRewardItem({ reward, onEdit, onDelete, onToggleAvailability }: { 
   reward: Reward; 
@@ -67,7 +64,17 @@ function SortableRewardItem({ reward, onEdit, onDelete, onToggleAvailability }: 
       <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
         <GripVertical className="h-5 w-5 text-muted-foreground" />
       </div>
-      <div className="text-2xl">{reward.icon}</div>
+      <div className="text-2xl min-w-[2rem] h-8 flex items-center justify-center">
+        {reward.icon.startsWith('http') ? (
+          <img 
+            src={reward.icon} 
+            alt="Reward icon" 
+            className="w-8 h-8 object-cover rounded"
+          />
+        ) : (
+          reward.icon
+        )}
+      </div>
       <div className="flex-1">
         <h3 className="font-medium">{reward.title}</h3>
         <p className="text-sm text-muted-foreground">{reward.cost_points} points</p>
@@ -320,19 +327,10 @@ export default function ManageRewards() {
 
                 <div className="space-y-2">
                   <Label>Reward Icon</Label>
-                  <div className="grid grid-cols-10 gap-2">
-                    {REWARD_ICONS.map((icon) => (
-                      <Button
-                        key={icon}
-                        type="button"
-                        variant={formData.icon === icon ? 'default' : 'outline'}
-                        className="aspect-square p-2"
-                        onClick={() => setFormData(prev => ({ ...prev, icon }))}
-                      >
-                        {icon}
-                      </Button>
-                    ))}
-                  </div>
+                  <IconSelector
+                    selectedIcon={formData.icon}
+                    onIconSelect={(icon) => setFormData(prev => ({ ...prev, icon }))}
+                  />
                 </div>
 
                 <div className="flex items-center space-x-2">
