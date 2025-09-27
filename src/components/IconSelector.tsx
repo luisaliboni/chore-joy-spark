@@ -452,7 +452,7 @@ export function IconSelector({ selectedIcon, onIconSelect, compact = false }: Ic
       {/* Icons Grid */}
       <div className="border rounded-lg p-2">
         <ScrollArea className={compact ? "h-48 w-full" : "h-60 tablet:h-72 desktop:h-80 w-full"}>
-          <div className={`grid gap-2 ${compact ? 'grid-cols-4 tablet:grid-cols-6' : 'grid-cols-3 tablet:grid-cols-4 desktop:grid-cols-6'}`}>
+          <div className={`grid ${compact ? 'grid-cols-3 tablet:grid-cols-4 gap-1' : 'grid-cols-2 tablet:grid-cols-3 desktop:grid-cols-4 gap-2'}`}>
             {filteredIcons.map((icon, index) => (
               <div key={`${selectedCategory}-${index}`} className="relative group">
                 <div className="flex flex-col items-center">
@@ -461,8 +461,8 @@ export function IconSelector({ selectedIcon, onIconSelect, compact = false }: Ic
                     variant={selectedIcon === icon ? 'default' : 'outline'}
                     className={`aspect-square p-1 relative hover:scale-105 transition-transform touch-target ${
                       compact 
-                        ? 'h-10 w-10 text-base mb-0.5' 
-                        : 'h-12 w-12 tablet:h-16 tablet:w-16 desktop:h-20 desktop:w-20 text-lg tablet:text-xl desktop:text-2xl mb-1'
+                        ? 'h-12 w-12 text-lg mb-0.5' 
+                        : 'h-16 w-16 tablet:h-20 tablet:w-20 desktop:h-24 desktop:w-24 text-xl tablet:text-2xl desktop:text-3xl mb-1'
                     }`}
                     onClick={() => onIconSelect(icon)}
                   >
@@ -470,14 +470,14 @@ export function IconSelector({ selectedIcon, onIconSelect, compact = false }: Ic
                       <img 
                         src={icon} 
                         alt="Custom icon" 
-                        className={compact ? "w-6 h-6 object-cover rounded" : "w-8 h-8 tablet:w-12 tablet:h-12 desktop:w-16 desktop:h-16 object-cover rounded"}
+                        className={compact ? "w-8 h-8 object-cover rounded" : "w-12 h-12 tablet:w-16 tablet:h-16 desktop:w-20 desktop:h-20 object-cover rounded"}
                       />
                     ) : (
                       icon
                     )}
                     {selectedIcon === icon && (
                       <div className="absolute inset-0 bg-primary/20 rounded flex items-center justify-center">
-                        <div className={compact ? "w-1.5 h-1.5 bg-primary rounded-full" : "w-2 h-2 tablet:w-3 tablet:h-3 bg-primary rounded-full"}></div>
+                        <div className={compact ? "w-2 h-2 bg-primary rounded-full" : "w-3 h-3 tablet:w-4 tablet:h-4 bg-primary rounded-full"}></div>
                       </div>
                     )}
                   </Button>
@@ -497,14 +497,14 @@ export function IconSelector({ selectedIcon, onIconSelect, compact = false }: Ic
                     variant="destructive"
                     size="sm"
                     className={`absolute -top-1 -right-1 rounded-full p-0 opacity-0 group-hover:opacity-100 transition-opacity touch-target ${
-                      compact ? 'h-4 w-4' : 'h-5 w-5 tablet:h-6 tablet:w-6'
+                      compact ? 'h-5 w-5' : 'h-6 w-6 tablet:h-7 tablet:w-7'
                     }`}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDeleteIcon(icon);
                     }}
                   >
-                    <X className={compact ? "h-2 w-2" : "h-2 w-2 tablet:h-3 tablet:w-3"} />
+                    <X className={compact ? "h-2.5 w-2.5" : "h-3 w-3 tablet:h-3.5 tablet:w-3.5"} />
                   </Button>
                 )}
               </div>
