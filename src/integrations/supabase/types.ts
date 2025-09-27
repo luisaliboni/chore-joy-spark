@@ -245,6 +245,10 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: undefined
       }
+      reset_weekly_task_completions: {
+        Args: { target_user_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
