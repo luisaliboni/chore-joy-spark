@@ -107,7 +107,7 @@ export default function ManageTasks() {
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [selectedDay, setSelectedDay] = useState<string>('all');
+  const [selectedDay, setSelectedDay] = useState<string>('monday');
   const [taskAssignments, setTaskAssignments] = useState<Record<string, any[]>>({});
   const [formData, setFormData] = useState<TaskFormData>({
     title: '',
@@ -536,13 +536,6 @@ export default function ManageTasks() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
-              <Button
-                variant={selectedDay === 'all' ? 'default' : 'outline'}
-                onClick={() => setSelectedDay('all')}
-                size="sm"
-              >
-                All Days
-              </Button>
               {DAYS_OF_WEEK.map((day) => (
                 <Button
                   key={day.id}
@@ -560,14 +553,12 @@ export default function ManageTasks() {
         {/* Task Assignments by Child */}
         {children.map((child) => {
           const childAssignments = taskAssignments[child.id] || [];
-          const filteredAssignments = selectedDay === 'all' 
-            ? childAssignments 
-            : childAssignments.filter(assignment => {
-                const assignedDate = new Date(assignment.assigned_date);
-                const dayOfWeek = assignedDate.getDay();
-                const dayIndex = DAYS_OF_WEEK.findIndex(d => d.id === selectedDay);
-                return dayOfWeek === (dayIndex + 1) % 7;
-              });
+          const filteredAssignments = childAssignments.filter(assignment => {
+            const assignedDate = new Date(assignment.assigned_date);
+            const dayOfWeek = assignedDate.getDay();
+            const dayIndex = DAYS_OF_WEEK.findIndex(d => d.id === selectedDay);
+            return dayOfWeek === (dayIndex + 1) % 7;
+          });
 
           return (
             <Card key={child.id} className="mt-6">
@@ -577,18 +568,13 @@ export default function ManageTasks() {
                     className="w-4 h-4 rounded-full" 
                     style={{ backgroundColor: child.color }}
                   />
-                  {child.name}'s Assigned Tasks
-                  {selectedDay !== 'all' && (
-                    <span className="text-sm font-normal text-muted-foreground">
-                      - {DAYS_OF_WEEK.find(d => d.id === selectedDay)?.label}
-                    </span>
-                  )}
+                  {child.name}'s Assigned Tasks - {DAYS_OF_WEEK.find(d => d.id === selectedDay)?.label}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {filteredAssignments.length === 0 ? (
                   <div className="text-center py-4 text-muted-foreground">
-                    No tasks assigned{selectedDay !== 'all' ? ' for this day' : ''}.
+                    No tasks assigned for this day.
                   </div>
                 ) : (
                   <div className="space-y-2">
