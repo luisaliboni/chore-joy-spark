@@ -79,6 +79,51 @@ function SortableTaskItem({ task, onEdit, onDelete }: {
   );
 }
 
+function SortableAssignmentItem({ assignment }: { assignment: any }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id: assignment.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="flex items-center justify-between p-3 border rounded-lg"
+    >
+      <div className="flex items-center gap-3">
+        <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
+          <GripVertical className="h-4 w-4 text-muted-foreground" />
+        </div>
+        <div className="text-xl">{assignment.tasks.icon}</div>
+        <div>
+          <div className={`font-medium ${assignment.is_completed ? 'line-through text-muted-foreground' : ''}`}>
+            {assignment.tasks.title}
+          </div>
+          <div className="text-sm text-muted-foreground">
+            {assignment.assigned_date} • {assignment.tasks.points} pts
+          </div>
+        </div>
+      </div>
+      <div className="text-sm">
+        {assignment.is_completed ? (
+          <span className="text-success">✅ Completed</span>
+        ) : (
+          <span className="text-muted-foreground">⏳ Pending</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function ManageTasks() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -103,6 +148,50 @@ export default function ManageTasks() {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+
+  const handleAssignmentDragEnd = async (event: any, childId: string) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) return;
+
+    const childAssignments = taskAssignments[childId] || [];
+    const filteredAssignments = childAssignments.filter(assignment => {
+      const assignedDate = new Date(assignment.assigned_date);
+      const dayOfWeek = assignedDate.getDay();
+      const dayIndex = DAYS_OF_WEEK.findIndex(d => d.id === selectedDay);
+      return dayOfWeek === (dayIndex + 1) % 7;
+    });
+
+    const oldIndex = filteredAssignments.findIndex(item => item.id === active.id);
+    const newIndex = filteredAssignments.findIndex(item => item.id === over.id);
+
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const newOrder = arrayMove(filteredAssignments, oldIndex, newIndex);
+    
+    // Update display_order in database
+    try {
+      const updates = newOrder.map((assignment, index) => ({
+        id: assignment.id,
+        display_order: index
+      }));
+
+      for (const update of updates) {
+        await supabase
+          .from('task_assignments')
+          .update({ display_order: update.display_order })
+          .eq('id', update.id);
+      }
+
+      // Refresh data
+      fetchData();
+      toast.success('Task order updated!');
+    } catch (error) {
+      console.error('Error updating task order:', error);
+      toast.error('Failed to update task order');
+    }
+  };
+
 
   useEffect(() => {
     if (user) {
@@ -548,33 +637,23 @@ export default function ManageTasks() {
                     No tasks assigned for this day.
                   </div>
                 ) : (
-                  <div className="space-y-2">
-                    {filteredAssignments.map((assignment) => (
-                      <div 
-                        key={assignment.id} 
-                        className="flex items-center justify-between p-3 border rounded-lg"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="text-xl">{assignment.tasks.icon}</div>
-                          <div>
-                            <div className={`font-medium ${assignment.is_completed ? 'line-through text-muted-foreground' : ''}`}>
-                              {assignment.tasks.title}
-                            </div>
-                            <div className="text-sm text-muted-foreground">
-                              {assignment.assigned_date} • {assignment.tasks.points} pts
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-sm">
-                          {assignment.is_completed ? (
-                            <span className="text-success">✅ Completed</span>
-                          ) : (
-                            <span className="text-muted-foreground">⏳ Pending</span>
-                          )}
-                        </div>
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={(event) => handleAssignmentDragEnd(event, child.id)}
+                    modifiers={[restrictToVerticalAxis]}
+                  >
+                    <SortableContext items={filteredAssignments.map(a => a.id)} strategy={verticalListSortingStrategy}>
+                      <div className="space-y-2">
+                        {filteredAssignments.map((assignment) => (
+                          <SortableAssignmentItem
+                            key={assignment.id}
+                            assignment={assignment}
+                          />
+                        ))}
                       </div>
-                    ))}
-                  </div>
+                    </SortableContext>
+                  </DndContext>
                 )}
               </CardContent>
             </Card>

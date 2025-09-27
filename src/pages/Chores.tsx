@@ -1,11 +1,28 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { ChevronLeft, ChevronRight, Settings, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Settings, Plus, GripVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { format, addDays, subDays } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import PointCelebration from '@/components/PointCelebration';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 
 interface Child {
   id: string;
@@ -27,6 +44,70 @@ interface TaskAssignment {
   };
 }
 
+function SortableTaskAssignment({ assignment, child, onComplete, onUndo }: {
+  assignment: TaskAssignment;
+  child: Child;
+  onComplete: (childId: string, assignmentId: string, points: number) => void;
+  onUndo: (childId: string, assignmentId: string, points: number) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id: assignment.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`flex items-center gap-4 p-4 rounded-lg border transition-all ${
+        assignment.is_completed
+          ? 'bg-success/10 border-success/20'
+          : 'bg-card hover:bg-accent/50'
+      }`}
+    >
+      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
+        <GripVertical className="h-4 w-4 text-muted-foreground" />
+      </div>
+      <div className="text-2xl">
+        {assignment.tasks.icon}
+      </div>
+      <div className="flex-1">
+        <h3 className={`font-medium ${assignment.is_completed ? 'line-through text-muted-foreground' : ''}`}>
+          {assignment.tasks.title}
+        </h3>
+      </div>
+      <div className="text-sm text-muted-foreground">
+        {assignment.tasks.points} pts
+      </div>
+      {assignment.is_completed ? (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => onUndo(child.id, assignment.id, assignment.tasks.points)}
+          className="bg-success/20 hover:bg-success/30"
+        >
+          ↩️ Undo
+        </Button>
+      ) : (
+        <Button
+          size="sm"
+          onClick={() => onComplete(child.id, assignment.id, assignment.tasks.points)}
+        >
+          Complete
+        </Button>
+      )}
+    </div>
+  );
+}
+
 export default function Chores() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -38,6 +119,13 @@ export default function Chores() {
     show: boolean;
     points: number;
   }>({ show: false, points: 0 });
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   useEffect(() => {
     if (user) {
@@ -151,6 +239,40 @@ export default function Chores() {
     }
   };
 
+  const handleTaskDragEnd = async (event: any, childId: string) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) return;
+
+    const childTasks = taskAssignments[childId] || [];
+    const oldIndex = childTasks.findIndex(item => item.id === active.id);
+    const newIndex = childTasks.findIndex(item => item.id === over.id);
+
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const newOrder = arrayMove(childTasks, oldIndex, newIndex);
+    
+    // Update display_order in database
+    try {
+      const updates = newOrder.map((assignment, index) => ({
+        id: assignment.id,
+        display_order: index
+      }));
+
+      for (const update of updates) {
+        await supabase
+          .from('task_assignments')
+          .update({ display_order: update.display_order })
+          .eq('id', update.id);
+      }
+
+      // Refresh data
+      fetchData();
+    } catch (error) {
+      console.error('Error updating task order:', error);
+    }
+  };
+
   const navigateDate = (direction: 'prev' | 'next') => {
     setCurrentDate(prev => 
       direction === 'prev' ? subDays(prev, 1) : addDays(prev, 1)
@@ -245,58 +367,29 @@ export default function Chores() {
 
               {/* Tasks */}
               <div className="space-y-3">
-                {taskAssignments[child.id]?.map((assignment) => (
-                  <div
-                    key={assignment.id}
-                    className={`flex items-center gap-4 p-4 rounded-lg border transition-all ${
-                      assignment.is_completed
-                        ? 'bg-success/10 border-success/20'
-                        : 'bg-card hover:bg-accent/50'
-                    }`}
-                  >
-                    <div className="text-2xl">
-                      {assignment.tasks.icon}
-                    </div>
-                    <div className="flex-1">
-                      <h3 className={`font-medium ${assignment.is_completed ? 'line-through text-muted-foreground' : ''}`}>
-                        {assignment.tasks.title}
-                      </h3>
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {assignment.tasks.points} pts
-                    </div>
-                    {assignment.is_completed ? (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleTaskUndo(
-                          child.id, 
-                          assignment.id, 
-                          assignment.tasks.points
-                        )}
-                        className="bg-success/20 hover:bg-success/30"
-                      >
-                        ↩️ Undo
-                      </Button>
-                    ) : (
-                      <Button
-                        size="sm"
-                        onClick={() => handleTaskComplete(
-                          child.id, 
-                          assignment.id, 
-                          assignment.tasks.points
-                        )}
-                      >
-                        Complete
-                      </Button>
-                    )}
-                  </div>
-                ))}
-                
-                {(!taskAssignments[child.id] || taskAssignments[child.id].length === 0) && (
+                {(!taskAssignments[child.id] || taskAssignments[child.id].length === 0) ? (
                   <div className="text-center py-8 text-muted-foreground">
                     No tasks assigned for today
                   </div>
+                ) : (
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={(event) => handleTaskDragEnd(event, child.id)}
+                    modifiers={[restrictToVerticalAxis]}
+                  >
+                    <SortableContext items={taskAssignments[child.id].map(a => a.id)} strategy={verticalListSortingStrategy}>
+                      {taskAssignments[child.id].map((assignment) => (
+                        <SortableTaskAssignment
+                          key={assignment.id}
+                          assignment={assignment}
+                          child={child}
+                          onComplete={handleTaskComplete}
+                          onUndo={handleTaskUndo}
+                        />
+                      ))}
+                    </SortableContext>
+                  </DndContext>
                 )}
               </div>
             </div>
