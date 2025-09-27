@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, Settings, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { format, addDays, subDays } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
+import PointCelebration from '@/components/PointCelebration';
 
 interface Child {
   id: string;
@@ -33,6 +34,10 @@ export default function Chores() {
   const [children, setChildren] = useState<Child[]>([]);
   const [taskAssignments, setTaskAssignments] = useState<Record<string, TaskAssignment[]>>({});
   const [loading, setLoading] = useState(true);
+  const [celebrationData, setCelebrationData] = useState<{
+    show: boolean;
+    points: number;
+  }>({ show: false, points: 0 });
 
   useEffect(() => {
     if (user) {
@@ -91,6 +96,9 @@ export default function Chores() {
 
   const handleTaskComplete = async (childId: string, assignmentId: string, points: number) => {
     try {
+      // Show celebration animation
+      setCelebrationData({ show: true, points });
+      
       // Update task completion
       await supabase
         .from('task_assignments')
@@ -253,6 +261,12 @@ export default function Chores() {
           ))}
         </div>
       </div>
+      
+      <PointCelebration
+        points={celebrationData.points}
+        show={celebrationData.show}
+        onComplete={() => setCelebrationData({ show: false, points: 0 })}
+      />
     </div>
   );
 }

@@ -8,6 +8,9 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Auth from "./pages/Auth";
 import Chores from "./pages/Chores";
 import Points from "./pages/Points";
+import ManageTasks from "./pages/ManageTasks";
+import Settings from "./pages/Settings";
+import ManageRewards from "./pages/ManageRewards";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +32,21 @@ const App = () => (
             <Route path="/points" element={
               <ProtectedRoute>
                 <Points />
+              </ProtectedRoute>
+            } />
+            <Route path="/manage-tasks" element={
+              <ProtectedRoute>
+                <ManageTasks />
+              </ProtectedRoute>
+            } />
+            <Route path="/settings" element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            } />
+            <Route path="/manage-rewards" element={
+              <ProtectedRoute>
+                <ManageRewards />
               </ProtectedRoute>
             } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
