@@ -280,12 +280,51 @@ export default function ManageRoutines() {
 
   const handleDeleteRoutine = async (routineId: string) => {
     try {
+      // First get the routine data before deleting
+      const { data: routineToDelete } = await supabase
+        .from('routines')
+        .select('*')
+        .eq('id', routineId)
+        .single();
+
+      if (!routineToDelete) {
+        toast.error('Routine not found');
+        return;
+      }
+
+      // Delete the routine
       await supabase
         .from('routines')
         .delete()
         .eq('id', routineId);
       
-      toast.success('Routine deleted!');
+      // Show undo toast
+      toast.success('Routine deleted!', {
+        action: {
+          label: 'Undo',
+          onClick: async () => {
+            try {
+              // Restore the routine
+              await supabase
+                .from('routines')
+                .insert({
+                  id: routineToDelete.id,
+                  user_id: routineToDelete.user_id,
+                  name: routineToDelete.name,
+                  task_ids: routineToDelete.task_ids
+                });
+
+              toast.success('Routine restored!');
+              fetchData();
+            } catch (error) {
+              console.error('Error restoring routine:', error);
+              toast.error('Failed to restore routine');
+            }
+          }
+        },
+        duration: 10000 // 10 seconds to undo
+      });
+      
       fetchData();
     } catch (error) {
       console.error('Error deleting routine:', error);

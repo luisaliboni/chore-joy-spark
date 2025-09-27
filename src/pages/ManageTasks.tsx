@@ -389,12 +389,68 @@ export default function ManageTasks() {
 
   const handleDelete = async (taskId: string) => {
     try {
+      // First get the task data before deleting
+      const { data: taskToDelete } = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('id', taskId)
+        .single();
+
+      if (!taskToDelete) {
+        toast.error('Task not found');
+        return;
+      }
+
+      // Get task assignments before deleting
+      const { data: assignmentsToDelete } = await supabase
+        .from('task_assignments')
+        .select('*')
+        .eq('task_id', taskId);
+
+      // Delete the task (this will cascade delete assignments due to foreign key)
       await supabase
         .from('tasks')
         .delete()
         .eq('id', taskId);
       
-      toast.success('Task deleted!');
+      // Show undo toast
+      toast.success('Task deleted!', {
+        action: {
+          label: 'Undo',
+          onClick: async () => {
+            try {
+              // Restore the task
+              const { data: restoredTask } = await supabase
+                .from('tasks')
+                .insert({
+                  id: taskToDelete.id,
+                  user_id: taskToDelete.user_id,
+                  title: taskToDelete.title,
+                  icon: taskToDelete.icon,
+                  points: taskToDelete.points,
+                  display_order: taskToDelete.display_order
+                })
+                .select()
+                .single();
+
+              // Restore assignments if any existed
+              if (assignmentsToDelete && assignmentsToDelete.length > 0) {
+                await supabase
+                  .from('task_assignments')
+                  .insert(assignmentsToDelete);
+              }
+
+              toast.success('Task restored!');
+              fetchData();
+            } catch (error) {
+              console.error('Error restoring task:', error);
+              toast.error('Failed to restore task');
+            }
+          }
+        },
+        duration: 10000 // 10 seconds to undo
+      });
+      
       fetchData();
     } catch (error) {
       console.error('Error deleting task:', error);
