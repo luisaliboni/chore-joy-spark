@@ -462,24 +462,25 @@ export default function ManageTasks() {
                   Add Task
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
                 <DialogHeader>
-                  <DialogTitle className="text-responsive-lg">{editingTask ? 'Edit Task' : 'Create New Task'}</DialogTitle>
+                  <DialogTitle className="text-responsive-base">{editingTask ? 'Edit Task' : 'Create New Task'}</DialogTitle>
                 </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-4 tablet:space-y-6">
-                  <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="title" className="text-responsive-sm">Task Title</Label>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="grid grid-cols-1 tablet:grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="title" className="text-sm">Task Title</Label>
                       <Input
                         id="title"
                         value={formData.title}
                         onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                         placeholder="e.g., Brush teeth"
                         required
+                        className="h-9"
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="points" className="text-responsive-sm">Points</Label>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="points" className="text-sm">Points</Label>
                       <Input
                         id="points"
                         type="number"
@@ -488,75 +489,75 @@ export default function ManageTasks() {
                         value={formData.points}
                         onChange={(e) => setFormData(prev => ({ ...prev, points: parseInt(e.target.value) || 1 }))}
                         required
+                        className="h-9"
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label>Task Icon</Label>
+                  <div className="space-y-1.5">
+                    <Label className="text-sm">Task Icon</Label>
                     <IconSelector
                       selectedIcon={formData.icon}
                       onIconSelect={(icon) => setFormData(prev => ({ ...prev, icon }))}
+                      compact={true}
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label>Assign to Children</Label>
-                        <div className="space-y-2">
-                          {children.map((child) => (
-                            <div key={child.id} className="flex items-center space-x-2">
-                              <Checkbox
-                                id={`child-${child.id}`}
-                                checked={formData.assignTo.includes(child.id)}
-                                onCheckedChange={(checked) => {
-                                  if (checked) {
-                                    setFormData(prev => ({
-                                      ...prev,
-                                      assignTo: [...prev.assignTo, child.id]
-                                    }));
-                                  } else {
-                                    setFormData(prev => ({
-                                      ...prev,
-                                      assignTo: prev.assignTo.filter(id => id !== child.id)
-                                    }));
-                                  }
-                                }}
-                              />
-                              <Label htmlFor={`child-${child.id}`}>{child.name}</Label>
-                            </div>
-                          ))}
-                        </div>
+                  {children.length > 0 && (
+                    <div className="space-y-1.5">
+                      <Label className="text-sm">Assign to Children</Label>
+                      <div className="flex flex-wrap gap-2 p-2 bg-muted/30 rounded-md">
+                        {children.map((child) => (
+                          <label
+                            key={child.id}
+                            className="flex items-center space-x-1.5 text-sm cursor-pointer"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={formData.assignTo.includes(child.id)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setFormData(prev => ({ ...prev, assignTo: [...prev.assignTo, child.id] }));
+                                } else {
+                                  setFormData(prev => ({ ...prev, assignTo: prev.assignTo.filter(id => id !== child.id) }));
+                                }
+                              }}
+                              className="rounded"
+                            />
+                            <span>{child.name}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="space-y-1.5">
+                    <Label className="text-sm">Assign to Days</Label>
+                    <div className="grid grid-cols-2 tablet:grid-cols-4 gap-2">
+                      {DAYS_OF_WEEK.map((day) => (
+                        <label
+                          key={day.id}
+                          className="flex items-center space-x-1.5 text-sm cursor-pointer p-2 border rounded hover:bg-accent"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={formData.days.includes(day.id)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setFormData(prev => ({ ...prev, days: [...prev.days, day.id] }));
+                              } else {
+                                setFormData(prev => ({ ...prev, days: prev.days.filter(d => d !== day.id) }));
+                              }
+                            }}
+                            className="rounded"
+                          />
+                          <span>{day.label}</span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label>Assign to Days</Label>
-                        <div className="grid grid-cols-2 gap-2">
-                          {DAYS_OF_WEEK.map((day) => (
-                            <div key={day.id} className="flex items-center space-x-2">
-                              <Checkbox
-                                id={`day-${day.id}`}
-                                checked={formData.days.includes(day.id)}
-                                onCheckedChange={(checked) => {
-                                  if (checked) {
-                                    setFormData(prev => ({
-                                      ...prev,
-                                      days: [...prev.days, day.id]
-                                    }));
-                                  } else {
-                                    setFormData(prev => ({
-                                      ...prev,
-                                      days: prev.days.filter(d => d !== day.id)
-                                    }));
-                                  }
-                                }}
-                              />
-                              <Label htmlFor={`day-${day.id}`}>{day.label}</Label>
-                            </div>
-                          ))}
-                        </div>
-                  </div>
-
-                  <div className="flex gap-2 justify-end">
+                  <div className="flex gap-2 justify-end pt-2">
                     <Button
                       type="button"
                       variant="outline"
@@ -565,10 +566,11 @@ export default function ManageTasks() {
                         setEditingTask(null);
                         setFormData({ title: '', icon: '🦷', points: 1, assignTo: [], days: [] });
                       }}
+                      className="h-9"
                     >
                       Cancel
                     </Button>
-                    <Button type="submit">
+                    <Button type="submit" className="h-9">
                       {editingTask ? 'Update Task' : 'Create Task'}
                     </Button>
                   </div>

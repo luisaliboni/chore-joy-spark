@@ -12,6 +12,7 @@ import { useAuth } from '@/hooks/useAuth';
 interface IconSelectorProps {
   selectedIcon: string;
   onIconSelect: (icon: string) => void;
+  compact?: boolean;
 }
 
 const ICON_CATEGORIES = {
@@ -141,7 +142,7 @@ const getIconName = (icon: string): string => {
 
 const ALL_ICONS_CATEGORY = 'All Icons';
 
-export function IconSelector({ selectedIcon, onIconSelect }: IconSelectorProps) {
+export function IconSelector({ selectedIcon, onIconSelect, compact = false }: IconSelectorProps) {
   const { user } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState(ALL_ICONS_CATEGORY);
   const [searchTerm, setSearchTerm] = useState('');
@@ -450,38 +451,44 @@ export function IconSelector({ selectedIcon, onIconSelect }: IconSelectorProps) 
       )}
 
       {/* Icons Grid */}
-      <div className="border rounded-lg p-responsive">
-        <ScrollArea className="h-60 tablet:h-72 desktop:h-80 w-full">
-          <div className="grid grid-cols-3 tablet:grid-cols-4 desktop:grid-cols-6 gap-3">
+      <div className="border rounded-lg p-2">
+        <ScrollArea className={compact ? "h-48 w-full" : "h-60 tablet:h-72 desktop:h-80 w-full"}>
+          <div className={`grid gap-2 ${compact ? 'grid-cols-4 tablet:grid-cols-6' : 'grid-cols-3 tablet:grid-cols-4 desktop:grid-cols-6'}`}>
             {filteredIcons.map((icon, index) => (
               <div key={`${selectedCategory}-${index}`} className="relative group">
                 <div className="flex flex-col items-center">
                   <Button
                     type="button"
                     variant={selectedIcon === icon ? 'default' : 'outline'}
-                    className="aspect-square p-1 h-12 w-12 tablet:h-16 tablet:w-16 desktop:h-20 desktop:w-20 text-lg tablet:text-xl desktop:text-2xl relative hover:scale-105 transition-transform touch-target mb-1"
+                    className={`aspect-square p-1 relative hover:scale-105 transition-transform touch-target ${
+                      compact 
+                        ? 'h-10 w-10 text-base mb-0.5' 
+                        : 'h-12 w-12 tablet:h-16 tablet:w-16 desktop:h-20 desktop:w-20 text-lg tablet:text-xl desktop:text-2xl mb-1'
+                    }`}
                     onClick={() => onIconSelect(icon)}
                   >
                     {icon.startsWith('http') ? (
                       <img 
                         src={icon} 
                         alt="Custom icon" 
-                        className="w-8 h-8 tablet:w-12 tablet:h-12 desktop:w-16 desktop:h-16 object-cover rounded"
+                        className={compact ? "w-6 h-6 object-cover rounded" : "w-8 h-8 tablet:w-12 tablet:h-12 desktop:w-16 desktop:h-16 object-cover rounded"}
                       />
                     ) : (
                       icon
                     )}
                     {selectedIcon === icon && (
                       <div className="absolute inset-0 bg-primary/20 rounded flex items-center justify-center">
-                        <div className="w-2 h-2 tablet:w-3 tablet:h-3 bg-primary rounded-full"></div>
+                        <div className={compact ? "w-1.5 h-1.5 bg-primary rounded-full" : "w-2 h-2 tablet:w-3 tablet:h-3 bg-primary rounded-full"}></div>
                       </div>
                     )}
                   </Button>
                   
                   {/* Icon Name */}
-                  <span className="text-xs tablet:text-sm font-medium text-center text-muted-foreground leading-tight max-w-full">
-                    {getIconName(icon)}
-                  </span>
+                  {!compact && (
+                    <span className="text-xs tablet:text-sm font-medium text-center text-muted-foreground leading-tight max-w-full">
+                      {getIconName(icon)}
+                    </span>
+                  )}
                 </div>
                 
                 {/* Delete button for custom uploaded icons */}
@@ -490,13 +497,15 @@ export function IconSelector({ selectedIcon, onIconSelect }: IconSelectorProps) 
                     type="button"
                     variant="destructive"
                     size="sm"
-                    className="absolute -top-1 -right-1 h-5 w-5 tablet:h-6 tablet:w-6 rounded-full p-0 opacity-0 group-hover:opacity-100 transition-opacity touch-target"
+                    className={`absolute -top-1 -right-1 rounded-full p-0 opacity-0 group-hover:opacity-100 transition-opacity touch-target ${
+                      compact ? 'h-4 w-4' : 'h-5 w-5 tablet:h-6 tablet:w-6'
+                    }`}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDeleteIcon(icon);
                     }}
                   >
-                    <X className="h-2 w-2 tablet:h-3 tablet:w-3" />
+                    <X className={compact ? "h-2 w-2" : "h-2 w-2 tablet:h-3 tablet:w-3"} />
                   </Button>
                 )}
               </div>
