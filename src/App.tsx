@@ -9,6 +9,7 @@ import Auth from "./pages/Auth";
 import Chores from "./pages/Chores";
 import Points from "./pages/Points";
 import ManageTasks from "./pages/ManageTasks";
+import ManageRoutines from "./pages/ManageRoutines";
 import Settings from "./pages/Settings";
 import ManageRewards from "./pages/ManageRewards";
 import NotFound from "./pages/NotFound";
@@ -37,6 +38,11 @@ const App = () => (
             <Route path="/manage-tasks" element={
               <ProtectedRoute>
                 <ManageTasks />
+              </ProtectedRoute>
+            } />
+            <Route path="/manage-routines" element={
+              <ProtectedRoute>
+                <ManageRoutines />
               </ProtectedRoute>
             } />
             <Route path="/settings" element={

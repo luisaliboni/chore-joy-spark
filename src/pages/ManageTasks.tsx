@@ -324,139 +324,145 @@ export default function ManageTasks() {
           
           <h1 className="text-2xl font-bold">Manage Tasks</h1>
           
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />
-                Add Task
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>{editingTask ? 'Edit Task' : 'Create New Task'}</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="title">Task Title</Label>
-                    <Input
-                      id="title"
-                      value={formData.title}
-                      onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                      placeholder="e.g., Brush teeth"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="points">Points</Label>
-                    <Input
-                      id="points"
-                      type="number"
-                      min="1"
-                      max="10"
-                      value={formData.points}
-                      onChange={(e) => setFormData(prev => ({ ...prev, points: parseInt(e.target.value) || 1 }))}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Task Icon</Label>
-                  <div className="grid grid-cols-10 gap-2">
-                    {TASK_ICONS.map((icon) => (
-                      <Button
-                        key={icon}
-                        type="button"
-                        variant={formData.icon === icon ? 'default' : 'outline'}
-                        className="aspect-square p-2"
-                        onClick={() => setFormData(prev => ({ ...prev, icon }))}
-                      >
-                        {icon}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-
-                {!editingTask && (
-                  <>
+          <div className="flex gap-2">
+            <Button onClick={() => navigate('/manage-routines')} variant="outline">
+              📋 Routines
+            </Button>
+            
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  Add Task
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>{editingTask ? 'Edit Task' : 'Create New Task'}</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Assign to Children</Label>
+                      <Label htmlFor="title">Task Title</Label>
+                      <Input
+                        id="title"
+                        value={formData.title}
+                        onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                        placeholder="e.g., Brush teeth"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="points">Points</Label>
+                      <Input
+                        id="points"
+                        type="number"
+                        min="1"
+                        max="10"
+                        value={formData.points}
+                        onChange={(e) => setFormData(prev => ({ ...prev, points: parseInt(e.target.value) || 1 }))}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Task Icon</Label>
+                    <div className="grid grid-cols-10 gap-2">
+                      {TASK_ICONS.map((icon) => (
+                        <Button
+                          key={icon}
+                          type="button"
+                          variant={formData.icon === icon ? 'default' : 'outline'}
+                          className="aspect-square p-2"
+                          onClick={() => setFormData(prev => ({ ...prev, icon }))}
+                        >
+                          {icon}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {!editingTask && (
+                    <>
                       <div className="space-y-2">
-                        {children.map((child) => (
-                          <div key={child.id} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={`child-${child.id}`}
-                              checked={formData.assignTo.includes(child.id)}
-                              onCheckedChange={(checked) => {
-                                if (checked) {
-                                  setFormData(prev => ({
-                                    ...prev,
-                                    assignTo: [...prev.assignTo, child.id]
-                                  }));
-                                } else {
-                                  setFormData(prev => ({
-                                    ...prev,
-                                    assignTo: prev.assignTo.filter(id => id !== child.id)
-                                  }));
-                                }
-                              }}
-                            />
-                            <Label htmlFor={`child-${child.id}`}>{child.name}</Label>
-                          </div>
-                        ))}
+                        <Label>Assign to Children</Label>
+                        <div className="space-y-2">
+                          {children.map((child) => (
+                            <div key={child.id} className="flex items-center space-x-2">
+                              <Checkbox
+                                id={`child-${child.id}`}
+                                checked={formData.assignTo.includes(child.id)}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    setFormData(prev => ({
+                                      ...prev,
+                                      assignTo: [...prev.assignTo, child.id]
+                                    }));
+                                  } else {
+                                    setFormData(prev => ({
+                                      ...prev,
+                                      assignTo: prev.assignTo.filter(id => id !== child.id)
+                                    }));
+                                  }
+                                }}
+                              />
+                              <Label htmlFor={`child-${child.id}`}>{child.name}</Label>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="space-y-2">
-                      <Label>Assign to Days</Label>
-                      <div className="grid grid-cols-2 gap-2">
-                        {DAYS_OF_WEEK.map((day) => (
-                          <div key={day.id} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={`day-${day.id}`}
-                              checked={formData.days.includes(day.id)}
-                              onCheckedChange={(checked) => {
-                                if (checked) {
-                                  setFormData(prev => ({
-                                    ...prev,
-                                    days: [...prev.days, day.id]
-                                  }));
-                                } else {
-                                  setFormData(prev => ({
-                                    ...prev,
-                                    days: prev.days.filter(d => d !== day.id)
-                                  }));
-                                }
-                              }}
-                            />
-                            <Label htmlFor={`day-${day.id}`}>{day.label}</Label>
-                          </div>
-                        ))}
+                      <div className="space-y-2">
+                        <Label>Assign to Days</Label>
+                        <div className="grid grid-cols-2 gap-2">
+                          {DAYS_OF_WEEK.map((day) => (
+                            <div key={day.id} className="flex items-center space-x-2">
+                              <Checkbox
+                                id={`day-${day.id}`}
+                                checked={formData.days.includes(day.id)}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    setFormData(prev => ({
+                                      ...prev,
+                                      days: [...prev.days, day.id]
+                                    }));
+                                  } else {
+                                    setFormData(prev => ({
+                                      ...prev,
+                                      days: prev.days.filter(d => d !== day.id)
+                                    }));
+                                  }
+                                }}
+                              />
+                              <Label htmlFor={`day-${day.id}`}>{day.label}</Label>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  </>
-                )}
+                    </>
+                  )}
 
-                <div className="flex gap-2 justify-end">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      setIsDialogOpen(false);
-                      setEditingTask(null);
-                      setFormData({ title: '', icon: '🦷', points: 1, assignTo: [], days: [] });
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit">
-                    {editingTask ? 'Update Task' : 'Create Task'}
-                  </Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
+                  <div className="flex gap-2 justify-end">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setIsDialogOpen(false);
+                        setEditingTask(null);
+                        setFormData({ title: '', icon: '🦷', points: 1, assignTo: [], days: [] });
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="submit">
+                      {editingTask ? 'Update Task' : 'Create Task'}
+                    </Button>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
 
         {/* Tasks List */}
