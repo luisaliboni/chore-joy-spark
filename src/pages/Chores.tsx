@@ -67,28 +67,28 @@ function SortableTaskAssignment({ assignment, child, onComplete, onUndo }: {
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-4 p-4 rounded-lg border transition-all ${
+      className={`flex items-center gap-2 sm:gap-4 p-3 sm:p-4 rounded-lg border transition-all ${
         assignment.is_completed
           ? 'bg-success/10 border-success/20'
           : 'bg-card hover:bg-accent/50'
       }`}
     >
-      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
-        <GripVertical className="h-4 w-4 text-muted-foreground" />
+      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing shrink-0">
+        <GripVertical className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
       </div>
-      <div className="text-4xl">
+      <div className="text-2xl sm:text-4xl shrink-0">
         {assignment.tasks.icon.startsWith('http') ? (
-          <img src={assignment.tasks.icon} alt="Task icon" className="w-12 h-12 object-cover rounded" />
+          <img src={assignment.tasks.icon} alt="Task icon" className="w-8 h-8 sm:w-12 sm:h-12 object-cover rounded" />
         ) : (
           assignment.tasks.icon
         )}
       </div>
-      <div className="flex-1">
-        <h3 className={`font-medium ${assignment.is_completed ? 'line-through text-muted-foreground' : ''}`}>
+      <div className="flex-1 min-w-0">
+        <h3 className={`font-medium text-sm sm:text-base ${assignment.is_completed ? 'line-through text-muted-foreground' : ''}`}>
           {assignment.tasks.title}
         </h3>
       </div>
-      <div className="text-sm text-muted-foreground">
+      <div className="text-xs sm:text-sm text-muted-foreground shrink-0">
         {assignment.tasks.points} pts
       </div>
       {assignment.is_completed ? (
@@ -96,16 +96,19 @@ function SortableTaskAssignment({ assignment, child, onComplete, onUndo }: {
           size="sm"
           variant="outline"
           onClick={() => onUndo(child.id, assignment.id, assignment.tasks.points)}
-          className="bg-success/20 hover:bg-success/30"
+          className="bg-success/20 hover:bg-success/30 text-xs sm:text-sm px-2 sm:px-3 shrink-0"
         >
-          ↩️ Undo
+          <span className="sm:hidden">↩️</span>
+          <span className="hidden sm:inline">↩️ Undo</span>
         </Button>
       ) : (
         <Button
           size="sm"
           onClick={() => onComplete(child.id, assignment.id, assignment.tasks.points)}
+          className="text-xs sm:text-sm px-2 sm:px-3 shrink-0"
         >
-          Complete
+          <span className="sm:hidden">✓</span>
+          <span className="hidden sm:inline">Complete</span>
         </Button>
       )}
     </div>
@@ -294,24 +297,25 @@ export default function Chores() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-child1/10 p-4">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-child1/10 p-2 sm:p-4 lg:p-6">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-center justify-between mb-6 sm:mb-8 gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => navigateDate('prev')}
+              className="shrink-0"
             >
-              <ChevronLeft className="h-5 w-5" />
+              <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
             
             <div className="text-center">
-              <h1 className="text-2xl font-bold">
+              <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold">
                 Daily Chores - {format(currentDate, 'EEEE')}
               </h1>
-              <p className="text-muted-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 {format(currentDate, 'MMMM dd, yyyy')}
               </p>
             </div>
@@ -320,52 +324,54 @@ export default function Chores() {
               variant="ghost"
               size="icon"
               onClick={() => navigateDate('next')}
+              className="shrink-0"
             >
-              <ChevronRight className="h-5 w-5" />
+              <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
           </div>
 
-          <div className="flex gap-2">
-            <Button onClick={() => navigate('/points')} className="bg-gradient-primary">
-              🏆 Points
+          <div className="flex flex-wrap gap-2 justify-center sm:justify-end">
+            <Button onClick={() => navigate('/points')} className="bg-gradient-primary text-xs sm:text-sm">
+              🏆 <span className="hidden sm:inline">Points</span>
             </Button>
             <Button 
               variant="outline" 
               onClick={() => navigate('/manage-tasks')}
+              className="text-xs sm:text-sm"
             >
-              <Plus className="w-4 h-4 mr-2" />
-              Manage Tasks
+              <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Manage </span>Tasks
             </Button>
             <Button 
               variant="ghost" 
               size="icon"
               onClick={() => navigate('/settings')}
             >
-              <Settings className="h-5 w-5" />
+              <Settings className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
           </div>
         </div>
 
         {/* Children Columns */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
           {children.map((child) => (
-            <div key={child.id} className="space-y-4">
+            <div key={child.id} className="space-y-3 sm:space-y-4">
               {/* Child Header */}
               <div 
-                className="rounded-lg p-6 text-white"
+                className="rounded-lg p-4 sm:p-6 text-white"
                 style={{
                   background: child.child_order === 1 
                     ? 'var(--gradient-child1)' 
                     : 'var(--gradient-child2)'
                 }}
               >
-                <h2 className="text-xl font-bold">{child.name}</h2>
-                <div className="flex items-center justify-between mt-2">
-                  <span className="text-sm opacity-90">
+                <h2 className="text-lg sm:text-xl font-bold">{child.name}</h2>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-2 gap-1 sm:gap-2">
+                  <span className="text-xs sm:text-sm opacity-90">
                     {taskAssignments[child.id]?.filter(t => t.is_completed).length || 0}/
                     {taskAssignments[child.id]?.length || 0} completed
                   </span>
-                  <span className="text-lg font-bold">
+                  <span className="text-sm sm:text-lg font-bold">
                     {child.weekly_points} pts this week
                   </span>
                 </div>

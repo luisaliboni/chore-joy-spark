@@ -114,6 +114,32 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 
+  /* Mobile-first responsive design */
+  @media (max-width: 767px) {
+    .mobile-padding {
+      padding: 1rem;
+    }
+    
+    .mobile-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .mobile-text {
+      font-size: 0.875rem;
+      line-height: 1.25rem;
+    }
+    
+    .mobile-button {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+    }
+    
+    .mobile-icon {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+  }
+
   /* Tablet-optimized touch targets */
   @media (min-width: 768px) and (max-width: 1024px) {
     .touch-target {
@@ -138,6 +164,30 @@ All colors MUST be HSL.
     .tablet-text {
       font-size: 1.125rem;
       line-height: 1.75rem;
+    }
+    
+    .tablet-grid-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* Desktop optimizations */
+  @media (min-width: 1025px) {
+    .desktop-grid-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .desktop-grid-4 {
+      grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .desktop-spacing {
+      padding: 2rem;
+    }
+    
+    .desktop-text {
+      font-size: 1rem;
+      line-height: 1.5rem;
     }
   }
 
