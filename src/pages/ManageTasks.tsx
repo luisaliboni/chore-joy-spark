@@ -610,12 +610,12 @@ export default function ManageTasks() {
         {/* Task Assignments by Child */}
         {children.map((child) => {
           const childAssignments = taskAssignments[child.id] || [];
-          const filteredAssignments = childAssignments.filter(assignment => {
-            const assignedDate = new Date(assignment.assigned_date);
-            const dayOfWeek = assignedDate.getDay();
-            const dayIndex = DAYS_OF_WEEK.findIndex(d => d.id === selectedDay);
-            return dayOfWeek === (dayIndex + 1) % 7;
-          });
+          const dayIndex = DAYS_OF_WEEK.findIndex(d => d.id === selectedDay);
+          const targetWeekday = (dayIndex + 1) % 7; // Convert to JS day format (0 = Sunday)
+          
+          const filteredAssignments = childAssignments.filter(assignment => 
+            assignment.weekday === targetWeekday
+          );
 
           return (
             <Card key={child.id} className="mt-6">
