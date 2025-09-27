@@ -152,17 +152,30 @@ export default function ManageRoutines() {
           const daysUntilTarget = (dayIndex + 1 - currentDay + 7) % 7;
           const targetDate = new Date(today);
           targetDate.setDate(today.getDate() + daysUntilTarget);
+          const dateStr = targetDate.toISOString().split('T')[0];
           
-          // Create assignments for all tasks in the routine
+          // Check for existing assignments for this child and date
+          const { data: existingAssignments } = await supabase
+            .from('task_assignments')
+            .select('task_id')
+            .eq('user_id', user.id)
+            .eq('child_id', childId)
+            .eq('assigned_date', dateStr);
+
+          const existingTaskIds = new Set(existingAssignments?.map(a => a.task_id) || []);
+          
+          // Create assignments for all tasks in the routine that don't already exist
           for (let i = 0; i < selectedRoutine.task_ids.length; i++) {
             const taskId = selectedRoutine.task_ids[i];
-            assignments.push({
-              user_id: user.id,
-              task_id: taskId,
-              child_id: childId,
-              assigned_date: targetDate.toISOString().split('T')[0],
-              display_order: i
-            });
+            if (!existingTaskIds.has(taskId)) {
+              assignments.push({
+                user_id: user.id,
+                task_id: taskId,
+                child_id: childId,
+                assigned_date: dateStr,
+                display_order: i
+              });
+            }
           }
         }
       }
@@ -173,6 +186,8 @@ export default function ManageRoutines() {
           .insert(assignments);
         
         toast.success(`Routine applied successfully! Created ${assignments.length} task assignments.`);
+      } else {
+        toast.info('All tasks from this routine are already assigned for the selected days.');
       }
 
       setIsApplyDialogOpen(false);

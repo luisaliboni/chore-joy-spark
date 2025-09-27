@@ -28,6 +28,7 @@ interface Task {
 interface Child {
   id: string;
   name: string;
+  color: string;
   child_order: number;
 }
 
@@ -106,6 +107,8 @@ export default function ManageTasks() {
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [selectedDay, setSelectedDay] = useState<string>('all');
+  const [taskAssignments, setTaskAssignments] = useState<Record<string, any[]>>({});
   const [formData, setFormData] = useState<TaskFormData>({
     title: '',
     icon: '🦷',
@@ -145,8 +148,35 @@ export default function ManageTasks() {
         .eq('user_id', user.id)
         .order('child_order');
 
-      if (tasksData) setTasks(tasksData);
-      if (childrenData) setChildren(childrenData);
+      // Fetch task assignments for all days if needed
+      const assignments: Record<string, any[]> = {};
+      if (childrenData) {
+        for (const child of childrenData) {
+          const { data } = await supabase
+            .from('task_assignments')
+            .select(`
+              id,
+              task_id,
+              assigned_date,
+              is_completed,
+              display_order,
+              tasks (
+                title,
+                icon,
+                points
+              )
+            `)
+            .eq('user_id', user.id)
+            .eq('child_id', child.id)
+            .order('assigned_date', { ascending: false });
+
+          assignments[child.id] = data || [];
+        }
+      }
+
+      setTasks(tasksData || []);
+      setChildren(childrenData || []);
+      setTaskAssignments(assignments);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -465,6 +495,34 @@ export default function ManageTasks() {
           </div>
         </div>
 
+        {/* Day Filter */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Filter by Day</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant={selectedDay === 'all' ? 'default' : 'outline'}
+                onClick={() => setSelectedDay('all')}
+                size="sm"
+              >
+                All Days
+              </Button>
+              {DAYS_OF_WEEK.map((day) => (
+                <Button
+                  key={day.id}
+                  variant={selectedDay === day.id ? 'default' : 'outline'}
+                  onClick={() => setSelectedDay(day.id)}
+                  size="sm"
+                >
+                  {day.label}
+                </Button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Tasks List */}
         <Card>
           <CardHeader>
@@ -498,6 +556,73 @@ export default function ManageTasks() {
             )}
           </CardContent>
         </Card>
+
+        {/* Task Assignments by Child */}
+        {children.map((child) => {
+          const childAssignments = taskAssignments[child.id] || [];
+          const filteredAssignments = selectedDay === 'all' 
+            ? childAssignments 
+            : childAssignments.filter(assignment => {
+                const assignedDate = new Date(assignment.assigned_date);
+                const dayOfWeek = assignedDate.getDay();
+                const dayIndex = DAYS_OF_WEEK.findIndex(d => d.id === selectedDay);
+                return dayOfWeek === (dayIndex + 1) % 7;
+              });
+
+          return (
+            <Card key={child.id} className="mt-6">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <div 
+                    className="w-4 h-4 rounded-full" 
+                    style={{ backgroundColor: child.color }}
+                  />
+                  {child.name}'s Assigned Tasks
+                  {selectedDay !== 'all' && (
+                    <span className="text-sm font-normal text-muted-foreground">
+                      - {DAYS_OF_WEEK.find(d => d.id === selectedDay)?.label}
+                    </span>
+                  )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {filteredAssignments.length === 0 ? (
+                  <div className="text-center py-4 text-muted-foreground">
+                    No tasks assigned{selectedDay !== 'all' ? ' for this day' : ''}.
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {filteredAssignments.map((assignment) => (
+                      <div 
+                        key={assignment.id} 
+                        className="flex items-center justify-between p-3 border rounded-lg"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="text-xl">{assignment.tasks.icon}</div>
+                          <div>
+                            <div className={`font-medium ${assignment.is_completed ? 'line-through text-muted-foreground' : ''}`}>
+                              {assignment.tasks.title}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              {assignment.assigned_date} • {assignment.tasks.points} pts
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-sm">
+                          {assignment.is_completed ? (
+                            <span className="text-success">✅ Completed</span>
+                          ) : (
+                            <span className="text-muted-foreground">⏳ Pending</span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
     </div>
   );
