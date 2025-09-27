@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Upload, Search } from 'lucide-react';
+import { Upload, Search, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
@@ -126,6 +126,36 @@ export function IconSelector({ selectedIcon, onIconSelect }: IconSelectorProps) 
       setUploadedIcons(iconUrls);
     } catch (error) {
       console.error('Error fetching uploaded icons:', error);
+    }
+  };
+
+  const handleDeleteIcon = async (iconUrl: string) => {
+    if (!user) return;
+
+    try {
+      // Extract the file path from the URL
+      const urlParts = iconUrl.split('/');
+      const fileName = urlParts[urlParts.length - 1];
+      const filePath = `${user.id}/${fileName}`;
+
+      const { error } = await supabase.storage
+        .from('task-icons')
+        .remove([filePath]);
+
+      if (error) throw error;
+
+      // Refresh the uploaded icons list
+      await fetchUploadedIcons();
+      
+      // If the deleted icon was currently selected, reset to default
+      if (selectedIcon === iconUrl) {
+        onIconSelect('🦷');
+      }
+      
+      toast.success('Icon deleted successfully!');
+    } catch (error) {
+      console.error('Error deleting icon:', error);
+      toast.error('Failed to delete icon');
     }
   };
 
@@ -343,28 +373,44 @@ export function IconSelector({ selectedIcon, onIconSelect }: IconSelectorProps) 
         <ScrollArea className="h-72 w-full">
           <div className="grid grid-cols-6 gap-1">
             {filteredIcons.map((icon, index) => (
-              <Button
-                key={`${selectedCategory}-${index}`}
-                type="button"
-                variant={selectedIcon === icon ? 'default' : 'outline'}
-                className="aspect-square p-1 h-16 w-16 text-2xl relative hover:scale-105 transition-transform"
-                onClick={() => onIconSelect(icon)}
-              >
-                {icon.startsWith('http') ? (
-                  <img 
-                    src={icon} 
-                    alt="Custom icon" 
-                    className="w-12 h-12 object-cover rounded"
-                  />
-                ) : (
-                  icon
+              <div key={`${selectedCategory}-${index}`} className="relative group">
+                <Button
+                  type="button"
+                  variant={selectedIcon === icon ? 'default' : 'outline'}
+                  className="aspect-square p-1 h-16 w-16 text-2xl relative hover:scale-105 transition-transform w-full"
+                  onClick={() => onIconSelect(icon)}
+                >
+                  {icon.startsWith('http') ? (
+                    <img 
+                      src={icon} 
+                      alt="Custom icon" 
+                      className="w-12 h-12 object-cover rounded"
+                    />
+                  ) : (
+                    icon
+                  )}
+                  {selectedIcon === icon && (
+                    <div className="absolute inset-0 bg-primary/20 rounded flex items-center justify-center">
+                      <div className="w-3 h-3 bg-primary rounded-full"></div>
+                    </div>
+                  )}
+                </Button>
+                {/* Delete button for custom uploaded icons */}
+                {icon.startsWith('http') && (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    className="absolute -top-1 -right-1 h-6 w-6 rounded-full p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteIcon(icon);
+                    }}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
                 )}
-                {selectedIcon === icon && (
-                  <div className="absolute inset-0 bg-primary/20 rounded flex items-center justify-center">
-                    <div className="w-3 h-3 bg-primary rounded-full"></div>
-                  </div>
-                )}
-              </Button>
+              </div>
             ))}
             {filteredIcons.length === 0 && (
               <div className="col-span-6 text-center py-8 text-muted-foreground text-sm">
