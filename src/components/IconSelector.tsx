@@ -28,9 +28,7 @@ const ICON_CATEGORIES = {
   ],
   'Hygiene & Health': [
     '🦷', '🪥', '🧼', '🚿', '🛁', '🧴', '💊', '🩹', '🌡️', '💉',
-    '🧽', '🪒', '💅', '👶', '🧻', '🪞', '🧴', '🫧', '🧯', '🩴',
-    '🧴', '🪥', '🧼', '🚿', '🛁', '🧴', '💊', '🩹', '🌡️', '💉',
-    '🧴', '🧼', '👐', '🫧'
+    '🧽', '🪒', '💅', '👶', '🧻', '🪞', '🫧', '🧯', '🩴', '👐'
   ],
   'School & Learning': [
     '📚', '📖', '📝', '✏️', '🖊️', '📓', '📔', '📒', '📕', '📗',
@@ -487,11 +485,11 @@ export function IconSelector({ selectedIcon, onIconSelect, compact = false }: Ic
                   </Button>
                   
                   {/* Icon Name */}
-                  {!compact && (
-                    <span className="text-sm tablet:text-base font-medium text-center text-muted-foreground leading-tight max-w-full">
-                      {getIconName(icon)}
-                    </span>
-                  )}
+                  <span className={`font-medium text-center text-muted-foreground leading-tight max-w-full ${
+                    compact ? 'text-xs' : 'text-sm tablet:text-base'
+                  }`}>
+                    {getIconName(icon)}
+                  </span>
                 </div>
                 
                 {/* Delete button for custom uploaded icons */}
