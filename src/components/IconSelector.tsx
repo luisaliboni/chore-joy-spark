@@ -465,8 +465,8 @@ export function IconSelector({ selectedIcon, onIconSelect, compact = false }: Ic
                     variant={selectedIcon === icon ? 'default' : 'outline'}
                     className={`w-full aspect-square p-2 relative hover:scale-105 transition-transform touch-target ${
                       compact 
-                        ? 'h-16 text-xl mb-1' 
-                        : 'h-20 tablet:h-24 desktop:h-28 text-2xl tablet:text-3xl desktop:text-4xl mb-2'
+                        ? 'h-16 text-3xl mb-1' 
+                        : 'h-20 tablet:h-24 desktop:h-28 text-4xl tablet:text-5xl desktop:text-6xl mb-2'
                     }`}
                     onClick={() => onIconSelect(icon)}
                   >
