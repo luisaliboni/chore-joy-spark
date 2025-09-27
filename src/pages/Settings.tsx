@@ -196,21 +196,21 @@ export default function Settings() {
                       <Label>Theme Color</Label>
                       <div className="grid grid-cols-4 gap-2">
                         {CHILD_COLORS.map((color) => (
-                          <Button
+                          <button
                             key={color.value}
-                            variant={child.color === color.value ? 'default' : 'outline'}
-                            className="aspect-square p-2 relative"
+                            className={`aspect-square p-1 rounded border-2 transition-all hover:scale-105 ${
+                              child.color === color.value 
+                                ? 'border-black border-4' 
+                                : 'border-gray-300 hover:border-gray-400'
+                            }`}
                             onClick={() => updateChildColor(child.id, color.value)}
-                            style={{
-                              backgroundColor: child.color === color.value ? color.value : undefined,
-                              borderColor: color.value
-                            }}
+                            title={color.name}
                           >
                             <div 
                               className="w-full h-full rounded-sm"
                               style={{ backgroundColor: color.value }}
                             />
-                          </Button>
+                          </button>
                         ))}
                       </div>
                     </div>

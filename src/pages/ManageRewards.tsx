@@ -296,24 +296,25 @@ export default function ManageRewards() {
                 Add Reward
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>{editingReward ? 'Edit Reward' : 'Create New Reward'}</DialogTitle>
+                <DialogTitle className="text-responsive-base">{editingReward ? 'Edit Reward' : 'Create New Reward'}</DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="title">Reward Title</Label>
+              <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="title" className="text-sm">Reward Title</Label>
                   <Input
                     id="title"
                     value={formData.title}
                     onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                     placeholder="e.g., Screen time - 40 minutes"
                     required
+                    className="h-9"
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="cost">Cost in Points</Label>
+                <div className="space-y-1.5">
+                  <Label htmlFor="cost" className="text-sm">Cost in Points</Label>
                   <Input
                     id="cost"
                     type="number"
@@ -322,14 +323,16 @@ export default function ManageRewards() {
                     value={formData.cost_points}
                     onChange={(e) => setFormData(prev => ({ ...prev, cost_points: parseInt(e.target.value) || 1 }))}
                     required
+                    className="h-9"
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label>Reward Icon</Label>
+                <div className="space-y-1.5">
+                  <Label className="text-sm">Reward Icon</Label>
                   <IconSelector
                     selectedIcon={formData.icon}
                     onIconSelect={(icon) => setFormData(prev => ({ ...prev, icon }))}
+                    compact={true}
                   />
                 </div>
 
@@ -342,7 +345,7 @@ export default function ManageRewards() {
                   <Label htmlFor="available">Available for redemption</Label>
                 </div>
 
-                <div className="flex gap-2 justify-end">
+                <div className="flex gap-2 justify-end pt-2">
                   <Button
                     type="button"
                     variant="outline"
@@ -351,10 +354,11 @@ export default function ManageRewards() {
                       setEditingReward(null);
                       setFormData({ title: '', icon: '🎁', cost_points: 10, is_available: true });
                     }}
+                    className="h-9"
                   >
                     Cancel
                   </Button>
-                  <Button type="submit">
+                  <Button type="submit" className="h-9">
                     {editingReward ? 'Update Reward' : 'Create Reward'}
                   </Button>
                 </div>
