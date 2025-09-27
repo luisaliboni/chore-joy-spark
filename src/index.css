@@ -113,4 +113,40 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Tablet-optimized touch targets */
+  @media (min-width: 768px) and (max-width: 1024px) {
+    .touch-target {
+      min-height: 48px;
+      min-width: 48px;
+    }
+    
+    .tablet-spacing {
+      padding: 1.5rem;
+    }
+    
+    .tablet-button {
+      padding: 0.875rem 1.5rem;
+      font-size: 1.125rem;
+    }
+    
+    .tablet-icon {
+      width: 1.75rem;
+      height: 1.75rem;
+    }
+    
+    .tablet-text {
+      font-size: 1.125rem;
+      line-height: 1.75rem;
+    }
+  }
+
+  /* Enhanced touch experience for all devices */
+  .touch-friendly {
+    @apply transition-all duration-200 active:scale-95;
+  }
+  
+  .touch-feedback {
+    @apply touch-friendly hover:shadow-lg active:shadow-md;
+  }
 }

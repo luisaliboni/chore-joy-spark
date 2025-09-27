@@ -59,24 +59,24 @@ function SortableTaskItem({ task, onEdit, onDelete }: {
   onDelete: (id: string) => void; 
 }) {
   return (
-    <div className="flex items-center gap-4 p-4 border rounded-lg bg-card">
-      <div className="text-2xl">
+    <div className="flex items-center gap-4 tablet:gap-6 p-4 tablet:p-6 border rounded-lg bg-card touch-feedback">
+      <div className="text-2xl tablet:text-3xl min-w-[2rem] tablet:min-w-[3rem] h-8 tablet:h-12 flex items-center justify-center">
         {task.icon.startsWith('http') ? (
-          <img src={task.icon} alt="Task icon" className="w-8 h-8 object-cover rounded" />
+          <img src={task.icon} alt="Task icon" className="w-8 h-8 tablet:w-12 tablet:h-12 object-cover rounded" />
         ) : (
           task.icon
         )}
       </div>
       <div className="flex-1">
-        <h3 className="font-medium">{task.title}</h3>
-        <p className="text-sm text-muted-foreground">{task.points} points</p>
+        <h3 className="font-medium text-base tablet:text-lg">{task.title}</h3>
+        <p className="text-sm tablet:text-base text-muted-foreground">{task.points} points</p>
       </div>
-      <div className="flex gap-2">
-        <Button size="sm" variant="outline" onClick={() => onEdit(task)}>
-          <Edit className="h-4 w-4" />
+      <div className="flex gap-2 tablet:gap-3">
+        <Button size="sm" variant="outline" onClick={() => onEdit(task)} className="h-10 tablet:h-12 w-10 tablet:w-12 touch-feedback">
+          <Edit className="h-4 w-4 tablet:h-5 tablet:w-5" />
         </Button>
-        <Button size="sm" variant="destructive" onClick={() => onDelete(task.id)}>
-          <Trash2 className="h-4 w-4" />
+        <Button size="sm" variant="destructive" onClick={() => onDelete(task.id)} className="h-10 tablet:h-12 w-10 tablet:w-12 touch-feedback">
+          <Trash2 className="h-4 w-4 tablet:h-5 tablet:w-5" />
         </Button>
       </div>
     </div>
@@ -101,31 +101,31 @@ function SortableAssignmentItem({ assignment }: { assignment: any }) {
     <div
       ref={setNodeRef}
       style={style}
-      className="flex items-center justify-between p-3 border rounded-lg"
+      className="flex items-center justify-between p-3 tablet:p-4 border rounded-lg touch-feedback"
     >
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 tablet:gap-4">
         <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
-          <GripVertical className="h-4 w-4 text-muted-foreground" />
+          <GripVertical className="h-4 w-4 tablet:h-5 tablet:w-5 text-muted-foreground" />
         </div>
-        <div className="text-xl">
+        <div className="text-xl tablet:text-2xl">
           {assignment.tasks.icon.startsWith('http') ? (
-            <img src={assignment.tasks.icon} alt="Task icon" className="w-6 h-6 object-cover rounded" />
+            <img src={assignment.tasks.icon} alt="Task icon" className="w-6 h-6 tablet:w-8 tablet:h-8 object-cover rounded" />
           ) : (
             assignment.tasks.icon
           )}
         </div>
         <div>
-          <div className={`font-medium ${assignment.is_completed ? 'line-through text-muted-foreground' : ''}`}>
+          <div className={`font-medium text-base tablet:text-lg ${assignment.is_completed ? 'line-through text-muted-foreground' : ''}`}>
             {assignment.tasks.title}
           </div>
-          <div className="text-sm text-muted-foreground">
+          <div className="text-sm tablet:text-base text-muted-foreground">
             {DAYS_OF_WEEK.find(d => (DAYS_OF_WEEK.findIndex(day => day.id === d.id) + 1) % 7 === assignment.weekday)?.label} • {assignment.tasks.points} pts
           </div>
         </div>
       </div>
-      <div className="text-sm">
+      <div className="text-sm tablet:text-base">
         {assignment.is_completed ? (
-          <span className="text-success">✅ Completed</span>
+          <span className="text-success font-medium">✅ Completed</span>
         ) : (
           <span className="text-muted-foreground">⏳ Pending</span>
         )}
@@ -455,13 +455,13 @@ export default function ManageTasks() {
               📋 Routines
             </Button>
             
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="flex items-center gap-2">
-                  <Plus className="h-4 w-4" />
-                  Add Task
-                </Button>
-              </DialogTrigger>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="flex items-center gap-2 h-12 tablet:h-14 px-4 tablet:px-6 text-base tablet:text-lg touch-feedback">
+                <Plus className="h-4 w-4 tablet:h-5 tablet:w-5" />
+                Add Task
+              </Button>
+            </DialogTrigger>
               <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>{editingTask ? 'Edit Task' : 'Create New Task'}</DialogTitle>
@@ -492,19 +492,19 @@ export default function ManageTasks() {
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label>Task Icon</Label>
-                    <IconSelector
+                <div className="tablet:col-span-2 space-y-2">
+                  <Label className="text-base tablet:text-lg">Task Icon</Label>
+                  <IconSelector
                       selectedIcon={formData.icon}
                       onIconSelect={(icon) => setFormData(prev => ({ ...prev, icon }))}
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label>Assign to Children</Label>
-                        <div className="space-y-2">
+                <div className="space-y-2">
+                  <Label className="text-base tablet:text-lg">Assign to Children</Label>
+                  <div className="space-y-3 tablet:space-y-4">
                           {children.map((child) => (
-                            <div key={child.id} className="flex items-center space-x-2">
+                            <div key={child.id} className="flex items-center space-x-3 p-3 tablet:p-4 border rounded-lg touch-feedback">
                               <Checkbox
                                 id={`child-${child.id}`}
                                 checked={formData.assignTo.includes(child.id)}
@@ -522,21 +522,21 @@ export default function ManageTasks() {
                                   }
                                 }}
                               />
-                              <Label htmlFor={`child-${child.id}`}>{child.name}</Label>
+                              <Label htmlFor={`child-${child.id}`} className="text-base tablet:text-lg cursor-pointer">{child.name}</Label>
                             </div>
                           ))}
                         </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label>Assign to Days</Label>
-                        <div className="grid grid-cols-2 gap-2">
-                          {DAYS_OF_WEEK.map((day) => (
-                            <div key={day.id} className="flex items-center space-x-2">
-                              <Checkbox
-                                id={`day-${day.id}`}
-                                checked={formData.days.includes(day.id)}
-                                onCheckedChange={(checked) => {
+                <div className="space-y-2">
+                  <Label className="text-base tablet:text-lg">Assign to Days</Label>
+                  <div className="grid grid-cols-1 tablet:grid-cols-2 gap-3 tablet:gap-4">
+                    {DAYS_OF_WEEK.map((day) => (
+                      <div key={day.id} className="flex items-center space-x-3 p-3 tablet:p-4 border rounded-lg touch-feedback">
+                        <Checkbox
+                          id={`day-${day.id}`}
+                          checked={formData.days.includes(day.id)}
+                          onCheckedChange={(checked) => {
                                   if (checked) {
                                     setFormData(prev => ({
                                       ...prev,
@@ -549,9 +549,9 @@ export default function ManageTasks() {
                                     }));
                                   }
                                 }}
-                              />
-                              <Label htmlFor={`day-${day.id}`}>{day.label}</Label>
-                            </div>
+                        />
+                        <Label htmlFor={`day-${day.id}`} className="text-base tablet:text-lg cursor-pointer">{day.label}</Label>
+                      </div>
                           ))}
                         </div>
                   </div>
@@ -589,8 +589,8 @@ export default function ManageTasks() {
                 No tasks created yet. Add your first task above!
               </div>
             ) : (
-              <div className="space-y-3">
-                {tasks.map((task) => (
+                <div className="space-y-3 tablet:space-y-4">
+                  {tasks.map((task) => (
                   <SortableTaskItem
                     key={task.id}
                     task={task}
