@@ -146,7 +146,11 @@ export default function ManageTasks() {
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [selectedDay, setSelectedDay] = useState<string>('monday');
+  const [selectedDay, setSelectedDay] = useState<string>(() => {
+    const today = new Date();
+    const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    return dayNames[today.getDay()];
+  });
   const [taskAssignments, setTaskAssignments] = useState<Record<string, any[]>>({});
   const [formData, setFormData] = useState<TaskFormData>({
     title: '',
