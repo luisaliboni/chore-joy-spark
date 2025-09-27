@@ -60,28 +60,8 @@ function SortableTaskItem({ task, onEdit, onDelete }: {
   onEdit: (task: Task) => void; 
   onDelete: (id: string) => void; 
 }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-  } = useSortable({ id: task.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className="flex items-center gap-4 p-4 border rounded-lg bg-card"
-    >
-      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
-        <GripVertical className="h-5 w-5 text-muted-foreground" />
-      </div>
+    <div className="flex items-center gap-4 p-4 border rounded-lg bg-card">
       <div className="text-2xl">{task.icon}</div>
       <div className="flex-1">
         <h3 className="font-medium">{task.title}</h3>
