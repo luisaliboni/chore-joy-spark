@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Plus, Save, Play, Trash2 } from 'lucide-react';
+import { ArrowLeft, Plus, Save, Play, Trash2, Edit } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -57,6 +57,7 @@ export default function ManageRoutines() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isApplyDialogOpen, setIsApplyDialogOpen] = useState(false);
   const [selectedRoutine, setSelectedRoutine] = useState<Routine | null>(null);
+  const [editingRoutine, setEditingRoutine] = useState<Routine | null>(null);
   const [formData, setFormData] = useState<RoutineFormData>({
     name: '',
     selectedTasks: []
@@ -109,6 +110,54 @@ export default function ManageRoutines() {
 
   const handleCreateRoutine = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user || formData.selectedTasks.length === 0) return;
+
+    try {
+      if (editingRoutine) {
+        // Update existing routine
+        await supabase
+          .from('routines')
+          .update({
+            name: formData.name,
+            task_ids: formData.selectedTasks
+          })
+          .eq('id', editingRoutine.id);
+        
+        toast.success('Routine updated successfully!');
+      } else {
+        // Create new routine
+        await supabase
+          .from('routines')
+          .insert({
+            user_id: user.id,
+            name: formData.name,
+            task_ids: formData.selectedTasks
+          });
+        
+        toast.success('Routine created successfully!');
+      }
+
+      setIsCreateDialogOpen(false);
+      setEditingRoutine(null);
+      setFormData({ name: '', selectedTasks: [] });
+      fetchData();
+    } catch (error) {
+      console.error('Error saving routine:', error);
+      toast.error('Failed to save routine');
+    }
+  };
+
+  const handleEditRoutine = (routine: Routine) => {
+    setEditingRoutine(routine);
+    setFormData({
+      name: routine.name,
+      selectedTasks: [...routine.task_ids]
+    });
+    setIsCreateDialogOpen(true);
+  };
+
+  const handleSaveRoutine = async (e: React.FormEvent) => {
+    e.preventDefault();
     
     if (!user || !formData.name.trim() || formData.selectedTasks.length === 0) {
       toast.error('Please provide a name and select at least one task');
@@ -116,21 +165,37 @@ export default function ManageRoutines() {
     }
 
     try {
-      await supabase
-        .from('routines')
-        .insert({
-          user_id: user.id,
-          name: formData.name.trim(),
-          task_ids: formData.selectedTasks
-        });
+      if (editingRoutine) {
+        // Update existing routine
+        await supabase
+          .from('routines')
+          .update({
+            name: formData.name.trim(),
+            task_ids: formData.selectedTasks
+          })
+          .eq('id', editingRoutine.id);
+        
+        toast.success('Routine updated successfully!');
+      } else {
+        // Create new routine
+        await supabase
+          .from('routines')
+          .insert({
+            user_id: user.id,
+            name: formData.name.trim(),
+            task_ids: formData.selectedTasks
+          });
+        
+        toast.success('Routine created successfully!');
+      }
 
-      toast.success('Routine created successfully!');
       setIsCreateDialogOpen(false);
+      setEditingRoutine(null);
       setFormData({ name: '', selectedTasks: [] });
       fetchData();
     } catch (error) {
-      console.error('Error creating routine:', error);
-      toast.error('Failed to create routine');
+      console.error('Error saving routine:', error);
+      toast.error('Failed to save routine');
     }
   };
 
@@ -251,7 +316,13 @@ export default function ManageRoutines() {
             <p className="text-muted-foreground">Create and apply task sequences</p>
           </div>
           
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <Dialog open={isCreateDialogOpen} onOpenChange={(open) => {
+            setIsCreateDialogOpen(open);
+            if (!open) {
+              setEditingRoutine(null);
+              setFormData({ name: '', selectedTasks: [] });
+            }
+          }}>
             <DialogTrigger asChild>
               <Button className="flex items-center gap-2">
                 <Plus className="h-4 w-4" />
@@ -260,9 +331,9 @@ export default function ManageRoutines() {
             </DialogTrigger>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
-                <DialogTitle>Create New Routine</DialogTitle>
+                <DialogTitle>{editingRoutine ? 'Edit Routine' : 'Create New Routine'}</DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleCreateRoutine} className="space-y-6">
+              <form onSubmit={handleSaveRoutine} className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="routineName">Routine Name</Label>
                   <Input
@@ -354,25 +425,32 @@ export default function ManageRoutines() {
                       <CardTitle className="flex items-center gap-2">
                         📋 {routine.name}
                       </CardTitle>
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          onClick={() => {
-                            setSelectedRoutine(routine);
-                            setIsApplyDialogOpen(true);
-                          }}
-                        >
-                          <Play className="h-4 w-4 mr-2" />
-                          Apply
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => handleDeleteRoutine(routine.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
+                       <div className="flex gap-2">
+                         <Button
+                           size="sm"
+                           variant="outline"
+                           onClick={() => handleEditRoutine(routine)}
+                         >
+                           <Edit className="h-4 w-4" />
+                         </Button>
+                         <Button
+                           size="sm"
+                           onClick={() => {
+                             setSelectedRoutine(routine);
+                             setIsApplyDialogOpen(true);
+                           }}
+                         >
+                           <Play className="h-4 w-4 mr-2" />
+                           Apply
+                         </Button>
+                         <Button
+                           size="sm"
+                           variant="destructive"
+                           onClick={() => handleDeleteRoutine(routine.id)}
+                         >
+                           <Trash2 className="h-4 w-4" />
+                         </Button>
+                       </div>
                     </div>
                   </CardHeader>
                   <CardContent>
