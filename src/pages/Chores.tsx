@@ -77,7 +77,11 @@ function SortableTaskAssignment({ assignment, child, onComplete, onUndo }: {
         <GripVertical className="h-4 w-4 text-muted-foreground" />
       </div>
       <div className="text-4xl">
-        {assignment.tasks.icon}
+        {assignment.tasks.icon.startsWith('http') ? (
+          <img src={assignment.tasks.icon} alt="Task icon" className="w-12 h-12 object-cover rounded" />
+        ) : (
+          assignment.tasks.icon
+        )}
       </div>
       <div className="flex-1">
         <h3 className={`font-medium ${assignment.is_completed ? 'line-through text-muted-foreground' : ''}`}>

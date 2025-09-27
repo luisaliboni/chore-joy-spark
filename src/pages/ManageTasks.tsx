@@ -8,7 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, Plus, Edit, Trash2, GripVertical } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ArrowLeft, Plus, Edit, Trash2, GripVertical, Upload, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
@@ -40,38 +41,53 @@ interface TaskFormData {
   days: string[];
 }
 
-const TASK_ICONS = [
-  // Personal Care
-  '🦷', '🧼', '🚿', '🧽', '🪥', '🧴', '💊', '🩹',
-  // Clothing & Laundry
-  '👕', '👔', '👗', '👖', '🧦', '👞', '🧺', '👚',
-  // Food & Kitchen
-  '🍽️', '🥛', '🍎', '🥕', '🍌', '🥪', '🍳', '🧊', '🫖', '🥤',
-  // Cleaning & Tidying
-  '🧹', '🗑️', '🧽', '🚮', '🪣', '🧴', '🧻', '🪟',
-  // School & Learning
-  '📚', '📝', '✏️', '📖', '🖊️', '📒', '🎒', '📐', '🖍️', '📏',
-  // Pets & Animals
-  '🐕', '🐱', '🐹', '🐰', '🐠', '🦮', '🦴', '🥫',
-  // Outdoor & Garden
-  '🌱', '🌸', '🌿', '🪴', '⛰️', '🌳', '🍃', '🌺',
-  // Sports & Activities
-  '⚽', '🏀', '🎾', '🏈', '🏃', '🚴', '🏊', '🤸', '🧘', '🏋️',
-  // Music & Arts
-  '🎵', '🎸', '🎹', '🎨', '🖼️', '🎭', '🎪', '🎬',
-  // Technology & Games
-  '📱', '💻', '🎮', '📺', '🔌', '💡', '🔋', '📷',
-  // Toys & Fun
-  '🧸', '🪀', '🎲', '🧩', '🪁', '🎯', '🪆', '🎊',
-  // Time & Organization
-  '⏰', '📅', '⏲️', '📝', '📋', '📌', '📍', '🗓️',
-  // Transportation
-  '🚗', '🚌', '🚲', '✈️', '🚂', '🛴', '🚁', '⛵',
-  // Home & Family
-  '🏠', '🏡', '🚪', '🛏️', '🪑', '🛋️', '🚻', '🪟',
-  // Special Occasions
-  '🎉', '🎁', '🎂', '🎈', '⭐', '🏆', '🥇', '🎀'
-];
+const TASK_ICONS = {
+  'Personal Care': [
+    '🦷', '🧼', '🚿', '🧽', '🪥', '🧴', '💊', '🩹'
+  ],
+  'Clothing': [
+    '👕', '👔', '👗', '👖', '🧦', '👞', '🧺', '👚'
+  ],
+  'Food & Kitchen': [
+    '🍽️', '🥛', '🍎', '🥕', '🍌', '🥪', '🍳', '🧊', '🫖', '🥤'
+  ],
+  'Cleaning': [
+    '🧹', '🗑️', '🧽', '🚮', '🪣', '🧴', '🧻'
+  ],
+  'School': [
+    '📚', '📝', '✏️', '📖', '🖊️', '📒', '🎒', '📐', '🖍️', '📏'
+  ],
+  'Pets': [
+    '🐕', '🐱', '🐹', '🐰', '🐠', '🦮', '🦴', '🥫'
+  ],
+  'Outdoor': [
+    '🌱', '🌸', '🌿', '🪴', '⛰️', '🌳', '🍃', '🌺'
+  ],
+  'Sports': [
+    '⚽', '🏀', '🎾', '🏈', '🏃', '🚴', '🏊', '🤸', '🧘', '🏋️'
+  ],
+  'Music & Arts': [
+    '🎵', '🎸', '🎹', '🎨', '🖼️', '🎭', '🎪', '🎬'
+  ],
+  'Technology': [
+    '📱', '💻', '🎮', '📺', '🔌', '💡', '🔋', '📷'
+  ],
+  'Toys': [
+    '🧸', '🪀', '🎲', '🧩', '🪁', '🎯', '🪆', '🎊'
+  ],
+  'Time': [
+    '⏰', '📅', '⏲️', '📝', '📋', '📌', '📍', '🗓️'
+  ],
+  'Transportation': [
+    '🚗', '🚌', '🚲', '✈️', '🚂', '🛴', '🚁', '⛵'
+  ],
+  'Home': [
+    '🏠', '🏡', '🚪', '🛏️', '🪑', '🛋️', '🚻'
+  ],
+  'Special': [
+    '🎉', '🎁', '🎂', '🎈', '⭐', '🏆', '🥇', '🎀'
+  ]
+};
 
 const DAYS_OF_WEEK = [
   { id: 'monday', label: 'Monday' },
@@ -90,7 +106,13 @@ function SortableTaskItem({ task, onEdit, onDelete }: {
 }) {
   return (
     <div className="flex items-center gap-4 p-4 border rounded-lg bg-card">
-      <div className="text-2xl">{task.icon}</div>
+      <div className="text-2xl">
+        {task.icon.startsWith('http') ? (
+          <img src={task.icon} alt="Task icon" className="w-8 h-8 object-cover rounded" />
+        ) : (
+          task.icon
+        )}
+      </div>
       <div className="flex-1">
         <h3 className="font-medium">{task.title}</h3>
         <p className="text-sm text-muted-foreground">{task.points} points</p>
@@ -131,7 +153,13 @@ function SortableAssignmentItem({ assignment }: { assignment: any }) {
         <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
           <GripVertical className="h-4 w-4 text-muted-foreground" />
         </div>
-        <div className="text-xl">{assignment.tasks.icon}</div>
+        <div className="text-xl">
+          {assignment.tasks.icon.startsWith('http') ? (
+            <img src={assignment.tasks.icon} alt="Task icon" className="w-6 h-6 object-cover rounded" />
+          ) : (
+            assignment.tasks.icon
+          )}
+        </div>
         <div>
           <div className={`font-medium ${assignment.is_completed ? 'line-through text-muted-foreground' : ''}`}>
             {assignment.tasks.title}
@@ -162,6 +190,8 @@ export default function ManageTasks() {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [selectedDay, setSelectedDay] = useState<string>('monday');
   const [taskAssignments, setTaskAssignments] = useState<Record<string, any[]>>({});
+  const [uploadedIcons, setUploadedIcons] = useState<string[]>([]);
+  const [uploadingIcon, setUploadingIcon] = useState(false);
   const [formData, setFormData] = useState<TaskFormData>({
     title: '',
     icon: '🦷',
@@ -224,6 +254,7 @@ export default function ManageTasks() {
   useEffect(() => {
     if (user) {
       fetchData();
+      fetchUploadedIcons();
     }
   }, [user]);
 
@@ -279,6 +310,82 @@ export default function ManageTasks() {
       console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchUploadedIcons = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase.storage
+        .from('task-icons')
+        .list(user.id, {
+          limit: 100,
+          offset: 0
+        });
+
+      if (error) throw error;
+
+      const iconUrls = data?.map(file => {
+        const { data: { publicUrl } } = supabase.storage
+          .from('task-icons')
+          .getPublicUrl(`${user.id}/${file.name}`);
+        return publicUrl;
+      }) || [];
+
+      setUploadedIcons(iconUrls);
+    } catch (error) {
+      console.error('Error fetching uploaded icons:', error);
+    }
+  };
+
+  const handleIconUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be smaller than 5MB');
+      return;
+    }
+
+    setUploadingIcon(true);
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}.${fileExt}`;
+      const filePath = `${user.id}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('task-icons')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('task-icons')
+        .getPublicUrl(filePath);
+
+      // Update form data with new icon
+      setFormData(prev => ({ ...prev, icon: publicUrl }));
+      
+      // Refresh uploaded icons
+      await fetchUploadedIcons();
+      
+      toast.success('Icon uploaded successfully!');
+    } catch (error) {
+      console.error('Error uploading icon:', error);
+      toast.error('Failed to upload icon');
+    } finally {
+      setUploadingIcon(false);
+      // Reset file input
+      event.target.value = '';
     }
   };
 
@@ -509,22 +616,127 @@ export default function ManageTasks() {
                     </div>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-4">
                     <Label>Task Icon</Label>
-                    <div className="border rounded-lg p-4 max-h-64 overflow-y-auto bg-muted/30">
-                      <div className="grid grid-cols-8 gap-2">
-                        {TASK_ICONS.map((icon) => (
-                          <Button
-                            key={icon}
-                            type="button"
-                            variant={formData.icon === icon ? 'default' : 'outline'}
-                            className="aspect-square p-2 text-xl h-12 w-12 hover:scale-105 transition-transform"
-                            onClick={() => setFormData(prev => ({ ...prev, icon }))}
-                          >
-                            {icon}
-                          </Button>
-                        ))}
+                    
+                    {/* Upload Section */}
+                    <div className="border rounded-lg p-4 bg-muted/30">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Label htmlFor="icon-upload" className="text-sm font-medium">Upload Custom Icon</Label>
                       </div>
+                      <div className="flex gap-2">
+                        <input
+                          id="icon-upload"
+                          type="file"
+                          accept="image/*"
+                          onChange={handleIconUpload}
+                          className="hidden"
+                        />
+                        <Label
+                          htmlFor="icon-upload"
+                          className="flex items-center gap-2 px-3 py-2 border rounded-md cursor-pointer hover:bg-accent text-sm"
+                        >
+                          <Upload className="h-4 w-4" />
+                          {uploadingIcon ? 'Uploading...' : 'Choose Image'}
+                        </Label>
+                        {formData.icon.startsWith('http') && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setFormData(prev => ({ ...prev, icon: '🦷' }))}
+                          >
+                            <X className="h-4 w-4 mr-1" />
+                            Clear
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Current Selection Display */}
+                    <div className="flex items-center gap-2 p-3 border rounded-lg bg-muted/20">
+                      <span className="text-sm font-medium">Selected:</span>
+                      <div className="w-8 h-8 flex items-center justify-center border rounded text-xl">
+                        {formData.icon.startsWith('http') ? (
+                          <img src={formData.icon} alt="Custom icon" className="w-6 h-6 object-cover rounded" />
+                        ) : (
+                          formData.icon
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Icon Selection Tabs */}
+                    <div className="border rounded-lg p-4 max-h-80 overflow-y-auto bg-muted/30">
+                      <Tabs defaultValue="Personal Care" className="w-full">
+                        <TabsList className="grid grid-cols-3 lg:grid-cols-5 gap-1 h-auto p-1 mb-4">
+                          {Object.keys(TASK_ICONS).slice(0, 5).map((category) => (
+                            <TabsTrigger key={category} value={category} className="text-xs p-2">
+                              {category}
+                            </TabsTrigger>
+                          ))}
+                        </TabsList>
+                        <TabsList className="grid grid-cols-3 lg:grid-cols-5 gap-1 h-auto p-1 mb-4">
+                          {Object.keys(TASK_ICONS).slice(5, 10).map((category) => (
+                            <TabsTrigger key={category} value={category} className="text-xs p-2">
+                              {category}
+                            </TabsTrigger>
+                          ))}
+                        </TabsList>
+                        <TabsList className="grid grid-cols-3 lg:grid-cols-5 gap-1 h-auto p-1 mb-4">
+                          {Object.keys(TASK_ICONS).slice(10).map((category) => (
+                            <TabsTrigger key={category} value={category} className="text-xs p-2">
+                              {category}
+                            </TabsTrigger>
+                          ))}
+                        </TabsList>
+
+                        {/* Uploaded Icons Tab */}
+                        {uploadedIcons.length > 0 && (
+                          <TabsList className="grid grid-cols-1 gap-1 h-auto p-1 mb-4">
+                            <TabsTrigger value="uploaded" className="text-xs p-2">
+                              My Uploads ({uploadedIcons.length})
+                            </TabsTrigger>
+                          </TabsList>
+                        )}
+
+                        {/* Category Content */}
+                        {Object.entries(TASK_ICONS).map(([category, icons]) => (
+                          <TabsContent key={category} value={category} className="mt-2">
+                            <div className="grid grid-cols-8 gap-2">
+                              {icons.map((icon, index) => (
+                                <Button
+                                  key={`${category}-${icon}-${index}`}
+                                  type="button"
+                                  variant={formData.icon === icon ? 'default' : 'outline'}
+                                  className="aspect-square p-2 text-xl h-12 w-12 hover:scale-105 transition-transform"
+                                  onClick={() => setFormData(prev => ({ ...prev, icon }))}
+                                >
+                                  {icon}
+                                </Button>
+                              ))}
+                            </div>
+                          </TabsContent>
+                        ))}
+
+                        {/* Uploaded Icons Content */}
+                        {uploadedIcons.length > 0 && (
+                          <TabsContent value="uploaded" className="mt-2">
+                            <div className="grid grid-cols-8 gap-2">
+                              {uploadedIcons.map((iconUrl, index) => (
+                                <Button
+                                  key={`uploaded-${iconUrl}-${index}`}
+                                  type="button"
+                                  variant={formData.icon === iconUrl ? 'default' : 'outline'}
+                                  className="aspect-square p-1 h-12 w-12 hover:scale-105 transition-transform"
+                                  onClick={() => setFormData(prev => ({ ...prev, icon: iconUrl }))}
+                                >
+                                  <img src={iconUrl} alt="Custom icon" className="w-8 h-8 object-cover rounded" />
+                                </Button>
+                              ))}
+                            </div>
+                          </TabsContent>
+                        )}
+                      </Tabs>
                     </div>
                   </div>
 
