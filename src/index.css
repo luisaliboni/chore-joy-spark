@@ -17,8 +17,8 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 43 96% 56%;
+    --primary-foreground: 0 0% 100%;
 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -34,7 +34,18 @@ All colors MUST be HSL.
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --ring: 43 96% 56%;
+
+    /* Kids app specific colors */
+    --child1-color: 158 64% 52%;
+    --child2-color: 221 83% 53%;
+    --success: 142 76% 36%;
+    --warning: 38 92% 50%;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(43 96% 56%), hsl(38 92% 60%));
+    --gradient-child1: linear-gradient(135deg, hsl(158 64% 52%), hsl(158 64% 42%));
+    --gradient-child2: linear-gradient(135deg, hsl(221 83% 53%), hsl(221 83% 43%));
 
     --radius: 0.5rem;
 

@@ -47,6 +47,10 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        child1: "hsl(var(--child1-color))",
+        child2: "hsl(var(--child2-color))",
+        success: "hsl(var(--success))",
+        warning: "hsl(var(--warning))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -80,10 +84,43 @@ export default {
             height: "0",
           },
         },
+        "bounce-in": {
+          "0%": {
+            transform: "scale(0.3)",
+            opacity: "0",
+          },
+          "50%": {
+            transform: "scale(1.05)",
+          },
+          "70%": {
+            transform: "scale(0.9)",
+          },
+          "100%": {
+            transform: "scale(1)",
+            opacity: "1",
+          },
+        },
+        "point-earned": {
+          "0%": {
+            transform: "scale(1) translateY(0)",
+            opacity: "1",
+          },
+          "100%": {
+            transform: "scale(1.2) translateY(-20px)",
+            opacity: "0",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "bounce-in": "bounce-in 0.6s ease-out",
+        "point-earned": "point-earned 1s ease-out forwards",
+      },
+      backgroundImage: {
+        "gradient-primary": "var(--gradient-primary)",
+        "gradient-child1": "var(--gradient-child1)",
+        "gradient-child2": "var(--gradient-child2)",
       },
     },
   },

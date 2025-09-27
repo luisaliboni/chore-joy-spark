@@ -14,13 +14,234 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      children: {
+        Row: {
+          child_order: number
+          color: string
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+          week_start_date: string
+          weekly_points: number
+        }
+        Insert: {
+          child_order: number
+          color: string
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+          week_start_date?: string
+          weekly_points?: number
+        }
+        Update: {
+          child_order?: number
+          color?: string
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+          week_start_date?: string
+          weekly_points?: number
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          child1_color: string | null
+          child1_name: string | null
+          child2_color: string | null
+          child2_name: string | null
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          child1_color?: string | null
+          child1_name?: string | null
+          child2_color?: string | null
+          child2_name?: string | null
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          child1_color?: string | null
+          child1_name?: string | null
+          child2_color?: string | null
+          child2_name?: string | null
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      rewards: {
+        Row: {
+          cost_points: number
+          created_at: string
+          display_order: number
+          icon: string
+          id: string
+          is_available: boolean
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cost_points: number
+          created_at?: string
+          display_order?: number
+          icon?: string
+          id?: string
+          is_available?: boolean
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cost_points?: number
+          created_at?: string
+          display_order?: number
+          icon?: string
+          id?: string
+          is_available?: boolean
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      routines: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          task_ids: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          task_ids: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          task_ids?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      task_assignments: {
+        Row: {
+          assigned_date: string
+          child_id: string
+          completed_at: string | null
+          created_at: string
+          display_order: number
+          id: string
+          is_completed: boolean
+          task_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assigned_date: string
+          child_id: string
+          completed_at?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_completed?: boolean
+          task_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assigned_date?: string
+          child_id?: string
+          completed_at?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_completed?: boolean
+          task_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_assignments_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_assignments_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tasks: {
+        Row: {
+          created_at: string
+          display_order: number
+          icon: string
+          id: string
+          points: number
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          icon?: string
+          id?: string
+          points?: number
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          icon?: string
+          id?: string
+          points?: number
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      reset_weekly_points: {
+        Args: { target_user_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
