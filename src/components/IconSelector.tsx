@@ -88,9 +88,11 @@ const ICON_CATEGORIES = {
   'Custom Uploads': []
 };
 
+const ALL_ICONS_CATEGORY = 'All Icons';
+
 export function IconSelector({ selectedIcon, onIconSelect }: IconSelectorProps) {
   const { user } = useAuth();
-  const [selectedCategory, setSelectedCategory] = useState('Daily Tasks');
+  const [selectedCategory, setSelectedCategory] = useState(ALL_ICONS_CATEGORY);
   const [searchTerm, setSearchTerm] = useState('');
   const [uploadedIcons, setUploadedIcons] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -282,7 +284,7 @@ export function IconSelector({ selectedIcon, onIconSelect }: IconSelectorProps) 
       // Fallback: search in category names and their icons
       const searchResults: string[] = [];
       Object.entries(ICON_CATEGORIES).forEach(([category, icons]) => {
-        if (category.toLowerCase().includes(searchTerm.toLowerCase())) {
+        if (category !== 'Custom Uploads' && category.toLowerCase().includes(searchTerm.toLowerCase())) {
           searchResults.push(...icons);
         }
       });
@@ -293,6 +295,19 @@ export function IconSelector({ selectedIcon, onIconSelect }: IconSelectorProps) 
       }
 
       return [...new Set(searchResults)]; // Remove duplicates
+    }
+
+    if (selectedCategory === ALL_ICONS_CATEGORY) {
+      // Show all icons from all categories except Custom Uploads
+      const allIcons: string[] = [];
+      Object.entries(ICON_CATEGORIES).forEach(([category, icons]) => {
+        if (category !== 'Custom Uploads') {
+          allIcons.push(...icons);
+        }
+      });
+      // Remove duplicates and add uploaded icons at the end
+      const uniqueIcons = [...new Set(allIcons)];
+      return [...uniqueIcons, ...uploadedIcons];
     }
 
     if (selectedCategory === 'Custom Uploads') {
@@ -339,12 +354,15 @@ export function IconSelector({ selectedIcon, onIconSelect }: IconSelectorProps) 
       {/* Category Selection - Hide when searching */}
       {!searchTerm && (
         <div className="space-y-2">
-          <Label htmlFor="category-select">Category</Label>
+          <Label htmlFor="category-select" className="text-responsive-sm">Category</Label>
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
             <SelectTrigger id="category-select">
               <SelectValue placeholder="Select a category" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-popover border border-border shadow-lg z-50">
+              <SelectItem key={ALL_ICONS_CATEGORY} value={ALL_ICONS_CATEGORY}>
+                {ALL_ICONS_CATEGORY}
+              </SelectItem>
               {Object.keys(ICON_CATEGORIES).map((category) => (
                 <SelectItem key={category} value={category}>
                   {category}
