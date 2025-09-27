@@ -109,7 +109,7 @@ function SortableAssignmentItem({ assignment }: { assignment: any }) {
             {assignment.tasks.title}
           </div>
           <div className="text-sm text-muted-foreground">
-            {assignment.assigned_date} • {assignment.tasks.points} pts
+            {DAYS_OF_WEEK.find(d => (DAYS_OF_WEEK.findIndex(day => day.id === d.id) + 1) % 7 === assignment.weekday)?.label} • {assignment.tasks.points} pts
           </div>
         </div>
       </div>
@@ -155,12 +155,12 @@ export default function ManageTasks() {
     if (!over || active.id === over.id) return;
 
     const childAssignments = taskAssignments[childId] || [];
-    const filteredAssignments = childAssignments.filter(assignment => {
-      const assignedDate = new Date(assignment.assigned_date);
-      const dayOfWeek = assignedDate.getDay();
-      const dayIndex = DAYS_OF_WEEK.findIndex(d => d.id === selectedDay);
-      return dayOfWeek === (dayIndex + 1) % 7;
-    });
+    const dayIndex = DAYS_OF_WEEK.findIndex(d => d.id === selectedDay);
+    const targetWeekday = (dayIndex + 1) % 7; // Convert to JS day format (0 = Sunday)
+    
+    const filteredAssignments = childAssignments.filter(assignment => 
+      assignment.weekday === targetWeekday
+    );
 
     const oldIndex = filteredAssignments.findIndex(item => item.id === active.id);
     const newIndex = filteredAssignments.findIndex(item => item.id === over.id);
@@ -227,6 +227,7 @@ export default function ManageTasks() {
               id,
               task_id,
               assigned_date,
+              weekday,
               is_completed,
               display_order,
               tasks (
@@ -237,7 +238,7 @@ export default function ManageTasks() {
             `)
             .eq('user_id', user.id)
             .eq('child_id', child.id)
-            .order('assigned_date', { ascending: false });
+            .order('weekday', { ascending: true });
 
           assignments[child.id] = data || [];
         }
@@ -296,30 +297,20 @@ export default function ManageTasks() {
       }
 
       if (task && formData.assignTo.length > 0 && formData.days.length > 0) {
-        // Create task assignments for selected children and days
+        // Create task assignments for selected children and days (weekday-based)
         const assignments = [];
         
         for (const childId of formData.assignTo) {
           for (const day of formData.days) {
-            // Calculate the date for the current week's occurrence of this day
-            const today = new Date();
-            const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
             const dayIndex = DAYS_OF_WEEK.findIndex(d => d.id === day);
-            const targetDayOfWeek = (dayIndex + 1) % 7; // Convert to JS day format (0 = Sunday)
-            
-            // Get the start of current week (Sunday)
-            const startOfWeek = new Date(today);
-            startOfWeek.setDate(today.getDate() - currentDay);
-            
-            // Calculate the target date for this week
-            const targetDate = new Date(startOfWeek);
-            targetDate.setDate(startOfWeek.getDate() + targetDayOfWeek);
+            const weekday = (dayIndex + 1) % 7; // Convert to JS day format (0 = Sunday)
             
             assignments.push({
               user_id: user.id,
               task_id: task.id,
               child_id: childId,
-              assigned_date: targetDate.toISOString().split('T')[0],
+              assigned_date: new Date().toISOString().split('T')[0], // Keep for compatibility
+              weekday: weekday,
               display_order: 0
             });
           }

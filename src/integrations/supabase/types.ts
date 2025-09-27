@@ -158,6 +158,7 @@ export type Database = {
           task_id: string
           updated_at: string
           user_id: string
+          weekday: number
         }
         Insert: {
           assigned_date: string
@@ -170,6 +171,7 @@ export type Database = {
           task_id: string
           updated_at?: string
           user_id: string
+          weekday: number
         }
         Update: {
           assigned_date?: string
@@ -182,6 +184,7 @@ export type Database = {
           task_id?: string
           updated_at?: string
           user_id?: string
+          weekday?: number
         }
         Relationships: [
           {

@@ -133,42 +133,6 @@ export default function Chores() {
     }
   }, [user, currentDate]);
 
-  // Function to create weekly recurring tasks
-  const createWeeklyRecurringTasks = async (userId: string, childId: string, targetDate: Date) => {
-    const dayOfWeek = targetDate.getDay();
-    const dateStr = format(targetDate, 'yyyy-MM-dd');
-
-    try {
-      // Find existing task assignments for this child on the same day of previous weeks
-      const oneWeekAgo = new Date(targetDate);
-      oneWeekAgo.setDate(targetDate.getDate() - 7);
-      const previousWeekDateStr = format(oneWeekAgo, 'yyyy-MM-dd');
-
-      const { data: previousWeekTasks } = await supabase
-        .from('task_assignments')
-        .select('task_id, display_order')
-        .eq('user_id', userId)
-        .eq('child_id', childId)
-        .eq('assigned_date', previousWeekDateStr);
-
-      if (previousWeekTasks && previousWeekTasks.length > 0) {
-        // Create the same tasks for this week
-        const newAssignments = previousWeekTasks.map(task => ({
-          user_id: userId,
-          task_id: task.task_id,
-          child_id: childId,
-          assigned_date: dateStr,
-          display_order: task.display_order
-        }));
-
-        await supabase
-          .from('task_assignments')
-          .insert(newAssignments);
-      }
-    } catch (error) {
-      console.error('Error creating weekly recurring tasks:', error);
-    }
-  };
 
   const fetchData = async () => {
     if (!user) return;
@@ -184,12 +148,12 @@ export default function Chores() {
       if (childrenData) {
         setChildren(childrenData);
 
-        // Fetch task assignments for current date and ensure weekly recurring tasks exist
-        const dateStr = format(currentDate, 'yyyy-MM-dd');
+        // Fetch task assignments for current weekday
+        const currentWeekday = currentDate.getDay();
         const assignments: Record<string, TaskAssignment[]> = {};
 
         for (const child of childrenData) {
-          // First, fetch existing assignments for this date
+          // Fetch assignments for the current weekday
           const { data } = await supabase
             .from('task_assignments')
             .select(`
@@ -205,36 +169,10 @@ export default function Chores() {
             `)
             .eq('user_id', user.id)
             .eq('child_id', child.id)
-            .eq('assigned_date', dateStr)
+            .eq('weekday', currentWeekday)
             .order('display_order');
 
           assignments[child.id] = data || [];
-
-          // If no assignments for today, check if we should create weekly recurring tasks
-          if (!data || data.length === 0) {
-            await createWeeklyRecurringTasks(user.id, child.id, currentDate);
-            
-            // Fetch again after creating recurring tasks
-            const { data: newData } = await supabase
-              .from('task_assignments')
-              .select(`
-                id,
-                task_id,
-                is_completed,
-                display_order,
-                tasks (
-                  title,
-                  icon,
-                  points
-                )
-              `)
-              .eq('user_id', user.id)
-              .eq('child_id', child.id)
-              .eq('assigned_date', dateStr)
-              .order('display_order');
-
-            assignments[child.id] = newData || [];
-          }
         }
 
         setTaskAssignments(assignments);
