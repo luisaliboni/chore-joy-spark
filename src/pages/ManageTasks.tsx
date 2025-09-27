@@ -479,7 +479,7 @@ export default function ManageTasks() {
                   Add Task
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl">
+              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>{editingTask ? 'Edit Task' : 'Create New Task'}</DialogTitle>
                 </DialogHeader>
@@ -511,18 +511,20 @@ export default function ManageTasks() {
 
                   <div className="space-y-2">
                     <Label>Task Icon</Label>
-                    <div className="grid grid-cols-8 gap-3">
-                      {TASK_ICONS.map((icon) => (
-                        <Button
-                          key={icon}
-                          type="button"
-                          variant={formData.icon === icon ? 'default' : 'outline'}
-                          className="aspect-square p-3 text-2xl h-14 w-14"
-                          onClick={() => setFormData(prev => ({ ...prev, icon }))}
-                        >
-                          {icon}
-                        </Button>
-                      ))}
+                    <div className="border rounded-lg p-4 max-h-64 overflow-y-auto bg-muted/30">
+                      <div className="grid grid-cols-8 gap-2">
+                        {TASK_ICONS.map((icon) => (
+                          <Button
+                            key={icon}
+                            type="button"
+                            variant={formData.icon === icon ? 'default' : 'outline'}
+                            className="aspect-square p-2 text-xl h-12 w-12 hover:scale-105 transition-transform"
+                            onClick={() => setFormData(prev => ({ ...prev, icon }))}
+                          >
+                            {icon}
+                          </Button>
+                        ))}
+                      </div>
                     </div>
                   </div>
 
