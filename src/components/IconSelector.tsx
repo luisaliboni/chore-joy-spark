@@ -452,17 +452,17 @@ export function IconSelector({ selectedIcon, onIconSelect, compact = false }: Ic
       {/* Icons Grid */}
       <div className="border rounded-lg p-2">
         <ScrollArea className={compact ? "h-48 w-full" : "h-60 tablet:h-72 desktop:h-80 w-full"}>
-          <div className={`grid ${compact ? 'grid-cols-3 tablet:grid-cols-4 gap-1' : 'grid-cols-2 tablet:grid-cols-3 desktop:grid-cols-4 gap-2'}`}>
+          <div className={`grid ${compact ? 'grid-cols-2 tablet:grid-cols-3 gap-2' : 'grid-cols-2 tablet:grid-cols-3 desktop:grid-cols-3 gap-3'}`}>
             {filteredIcons.map((icon, index) => (
               <div key={`${selectedCategory}-${index}`} className="relative group">
                 <div className="flex flex-col items-center">
                   <Button
                     type="button"
                     variant={selectedIcon === icon ? 'default' : 'outline'}
-                    className={`aspect-square p-1 relative hover:scale-105 transition-transform touch-target ${
+                    className={`w-full aspect-square p-2 relative hover:scale-105 transition-transform touch-target ${
                       compact 
-                        ? 'h-12 w-12 text-lg mb-0.5' 
-                        : 'h-16 w-16 tablet:h-20 tablet:w-20 desktop:h-24 desktop:w-24 text-xl tablet:text-2xl desktop:text-3xl mb-1'
+                        ? 'h-16 text-xl mb-1' 
+                        : 'h-20 tablet:h-24 desktop:h-28 text-2xl tablet:text-3xl desktop:text-4xl mb-2'
                     }`}
                     onClick={() => onIconSelect(icon)}
                   >
@@ -470,21 +470,21 @@ export function IconSelector({ selectedIcon, onIconSelect, compact = false }: Ic
                       <img 
                         src={icon} 
                         alt="Custom icon" 
-                        className={compact ? "w-8 h-8 object-cover rounded" : "w-12 h-12 tablet:w-16 tablet:h-16 desktop:w-20 desktop:h-20 object-cover rounded"}
+                        className={compact ? "w-12 h-12 object-cover rounded" : "w-16 h-16 tablet:w-20 tablet:h-20 desktop:w-24 desktop:h-24 object-cover rounded"}
                       />
                     ) : (
                       icon
                     )}
                     {selectedIcon === icon && (
                       <div className="absolute inset-0 bg-primary/20 rounded flex items-center justify-center">
-                        <div className={compact ? "w-2 h-2 bg-primary rounded-full" : "w-3 h-3 tablet:w-4 tablet:h-4 bg-primary rounded-full"}></div>
+                        <div className={compact ? "w-3 h-3 bg-primary rounded-full" : "w-4 h-4 tablet:w-5 tablet:h-5 bg-primary rounded-full"}></div>
                       </div>
                     )}
                   </Button>
                   
                   {/* Icon Name */}
                   {!compact && (
-                    <span className="text-xs tablet:text-sm font-medium text-center text-muted-foreground leading-tight max-w-full">
+                    <span className="text-sm tablet:text-base font-medium text-center text-muted-foreground leading-tight max-w-full">
                       {getIconName(icon)}
                     </span>
                   )}
@@ -497,14 +497,14 @@ export function IconSelector({ selectedIcon, onIconSelect, compact = false }: Ic
                     variant="destructive"
                     size="sm"
                     className={`absolute -top-1 -right-1 rounded-full p-0 opacity-0 group-hover:opacity-100 transition-opacity touch-target ${
-                      compact ? 'h-5 w-5' : 'h-6 w-6 tablet:h-7 tablet:w-7'
+                      compact ? 'h-6 w-6' : 'h-7 w-7 tablet:h-8 tablet:w-8'
                     }`}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDeleteIcon(icon);
                     }}
                   >
-                    <X className={compact ? "h-2.5 w-2.5" : "h-3 w-3 tablet:h-3.5 tablet:w-3.5"} />
+                    <X className={compact ? "h-3 w-3" : "h-4 w-4 tablet:h-4.5 tablet:w-4.5"} />
                   </Button>
                 )}
               </div>
