@@ -61,20 +61,22 @@ function SortableRewardItem({ reward, onEdit, onDelete, onToggleAvailability }: 
         reward.is_available ? 'bg-card' : 'bg-muted/50 opacity-60'
       }`}
     >
-      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
-        <GripVertical className="icon-responsive-sm text-muted-foreground" />
+      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-2 -m-2 touch-target">
+        <GripVertical className="h-5 w-5 text-muted-foreground" />
       </div>
-      <div className="text-xl tablet:text-2xl desktop:text-3xl min-w-[2rem] h-8 tablet:h-10 desktop:h-12 flex items-center justify-center">
-        {reward.icon.startsWith('http') ? (
-          <img 
-            src={reward.icon} 
-            alt="Reward icon" 
-            className="icon-responsive object-cover rounded"
-          />
-        ) : (
-          reward.icon
-        )}
-      </div>
+      {reward.icon && (
+        <div className="text-xl tablet:text-2xl desktop:text-3xl min-w-[2rem] h-8 tablet:h-10 desktop:h-12 flex items-center justify-center">
+          {reward.icon.startsWith('http') ? (
+            <img 
+              src={reward.icon} 
+              alt="Reward icon" 
+              className="icon-responsive object-cover rounded"
+            />
+          ) : (
+            reward.icon
+          )}
+        </div>
+      )}
       <div className="flex-1 min-w-0">
         <h3 className="font-medium text-responsive-sm">{reward.title}</h3>
         <p className="text-responsive-xs text-muted-foreground">{reward.cost_points} points</p>
@@ -329,11 +331,12 @@ export default function ManageRewards() {
 
                 <div className="space-y-1.5">
                   <Label className="text-sm">Reward Icon</Label>
-                  <IconSelector
-                    selectedIcon={formData.icon}
-                    onIconSelect={(icon) => setFormData(prev => ({ ...prev, icon }))}
-                    compact={true}
-                  />
+                <IconSelector
+                  selectedIcon={formData.icon}
+                  onIconSelect={(icon) => setFormData(prev => ({ ...prev, icon: typeof icon === 'string' ? icon : icon[0] || '' }))}
+                  compact={true}
+                  allowNoIcon={true}
+                />
                 </div>
 
                 <div className="flex items-center space-x-2">

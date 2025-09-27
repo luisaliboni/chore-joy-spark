@@ -60,13 +60,15 @@ function SortableTaskItem({ task, onEdit, onDelete }: {
 }) {
   return (
     <div className="flex items-center gap-responsive p-responsive border rounded-lg bg-card">
-      <div className="text-xl tablet:text-2xl desktop:text-3xl">
-        {task.icon.startsWith('http') ? (
-          <img src={task.icon} alt="Task icon" className="icon-responsive object-cover rounded" />
-        ) : (
-          task.icon
-        )}
-      </div>
+      {task.icon && (
+        <div className="text-xl tablet:text-2xl desktop:text-3xl">
+          {task.icon.startsWith('http') ? (
+            <img src={task.icon} alt="Task icon" className="icon-responsive object-cover rounded" />
+          ) : (
+            task.icon
+          )}
+        </div>
+      )}
       <div className="flex-1 min-w-0">
         <h3 className="font-medium text-responsive-sm">{task.title}</h3>
         <p className="text-responsive-xs text-muted-foreground">{task.points} points</p>
@@ -104,16 +106,18 @@ function SortableAssignmentItem({ assignment }: { assignment: any }) {
       className="flex items-center justify-between p-3 border rounded-lg"
     >
       <div className="flex items-center gap-3">
-        <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
-          <GripVertical className="h-4 w-4 text-muted-foreground" />
+        <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-2 -m-2 touch-target">
+          <GripVertical className="h-5 w-5 text-muted-foreground" />
         </div>
-        <div className="text-xl">
-          {assignment.tasks.icon.startsWith('http') ? (
-            <img src={assignment.tasks.icon} alt="Task icon" className="w-6 h-6 object-cover rounded" />
-          ) : (
-            assignment.tasks.icon
-          )}
-        </div>
+        {assignment.tasks.icon && (
+          <div className="text-xl">
+            {assignment.tasks.icon.startsWith('http') ? (
+              <img src={assignment.tasks.icon} alt="Task icon" className="w-6 h-6 object-cover rounded" />
+            ) : (
+              assignment.tasks.icon
+            )}
+          </div>
+        )}
         <div>
           <div className={`font-medium ${assignment.is_completed ? 'line-through text-muted-foreground' : ''}`}>
             {assignment.tasks.title}
@@ -559,11 +563,12 @@ export default function ManageTasks() {
 
                   <div className="space-y-1.5">
                     <Label className="text-sm">Task Icon</Label>
-                    <IconSelector
-                      selectedIcon={formData.icon}
-                      onIconSelect={(icon) => setFormData(prev => ({ ...prev, icon }))}
-                      compact={true}
-                    />
+                  <IconSelector
+                    selectedIcon={formData.icon}
+                    onIconSelect={(icon) => setFormData(prev => ({ ...prev, icon: typeof icon === 'string' ? icon : icon[0] || '' }))}
+                    compact={true}
+                    allowNoIcon={true}
+                  />
                   </div>
 
                   {children.length > 0 && (

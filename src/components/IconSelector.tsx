@@ -10,9 +10,11 @@ import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 
 interface IconSelectorProps {
-  selectedIcon: string;
-  onIconSelect: (icon: string) => void;
+  selectedIcon: string | string[];
+  onIconSelect: (icon: string | string[]) => void;
   compact?: boolean;
+  allowMultiple?: boolean;
+  allowNoIcon?: boolean;
 }
 
 const ICON_CATEGORIES = {
@@ -76,7 +78,8 @@ const ICON_CATEGORIES = {
   'Home & Family': [
     '🏠', '🏡', '🏘️', '🏰', '🏛️', '🛏️', '🛋️', '🪑', '🚪', '🪟',
     '👨‍👩‍👧‍👦', '👪', '👶', '👧', '👦', '👩', '👨', '👵', '👴', '💕',
-    '❤️', '💖', '💝', '🎂', '🍰', '🎈', '🎉', '🎊', '🎁', '💐'
+    '❤️', '💖', '💝', '🎂', '🍰', '🎈', '🎉', '🎊', '🎁', '💐',
+    '🗄️', '🗃️', '📦', '🪄'
   ],
   'Time & Weather': [
     '⏰', '⏱️', '⏲️', '🕐', '🕑', '🕒', '🕓', '🕔', '🕕', '🕖',
@@ -110,6 +113,9 @@ const ICON_NAMES: Record<string, string> = {
   '🦷': 'Tooth', '🛁': 'Bath', '💊': 'Medicine', '🩹': 'Bandage', '🌡️': 'Temperature',
   '💉': 'Shot', '🪒': 'Shave', '💅': 'Nails', '👶': 'Baby Care', '🧻': 'Tissue',
   '👐': 'Wash Face', '🫧': 'Soap', '💇': 'Comb Hair', '🪮': 'Hair Brush',
+
+  // Home & Family (storage)
+  '🗄️': 'Storage Cabinet', '🗃️': 'File Cabinet', '📦': 'Storage Box', '🪄': 'Drawer',
 
   // School & Learning
   '📖': 'Read', '📓': 'Notebook', '📔': 'Journal', '📒': 'Ledger', '📕': 'Book',
@@ -147,7 +153,7 @@ const getIconName = (icon: string): string => {
 
 const ALL_ICONS_CATEGORY = 'All Icons';
 
-export function IconSelector({ selectedIcon, onIconSelect, compact = false }: IconSelectorProps) {
+export function IconSelector({ selectedIcon, onIconSelect, compact = false, allowMultiple = false, allowNoIcon = false }: IconSelectorProps) {
   const { user } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState(ALL_ICONS_CATEGORY);
   const [searchTerm, setSearchTerm] = useState('');
@@ -318,7 +324,11 @@ export function IconSelector({ selectedIcon, onIconSelect, compact = false }: Ic
       'lunch': ['🍱', '🥪', '🍽️'],
       'lunchbox': ['🍱'],
       'store': ['🛍️', '👞', '🎒'],
-      'shopping': ['🛍️', '🎒']
+      'shopping': ['🛍️', '🎒'],
+      'storage': ['🗄️', '🗃️', '📦', '🪄'],
+      'cabinet': ['🗄️', '🗃️'],
+      'drawer': ['🪄', '🗃️'],
+      'box': ['📦', '🗃️']
     };
 
     const lowerKeyword = keyword.toLowerCase();
@@ -386,8 +396,38 @@ export function IconSelector({ selectedIcon, onIconSelect, compact = false }: Ic
   const currentIcons = getCurrentCategoryIcons();
   const filteredIcons = currentIcons;
 
+  const handleIconClick = (icon: string) => {
+    if (allowMultiple && Array.isArray(selectedIcon)) {
+      const isSelected = selectedIcon.includes(icon);
+      if (isSelected) {
+        onIconSelect(selectedIcon.filter(i => i !== icon));
+      } else {
+        onIconSelect([...selectedIcon, icon]);
+      }
+    } else {
+      onIconSelect(icon);
+    }
+  };
+
   return (
     <div className="space-y-4">
+      {/* No Icon Option */}
+      {allowNoIcon && (
+        <div className="p-2 border rounded-lg">
+          <button
+            type="button"
+            onClick={() => onIconSelect('')}
+            className={`w-full p-3 border-2 border-dashed rounded-lg text-sm transition-colors ${
+              selectedIcon === '' 
+                ? 'border-primary bg-primary/5 text-primary' 
+                : 'border-muted-foreground/30 hover:border-muted-foreground/50'
+            }`}
+          >
+            📝 Text Only (No Icon)
+          </button>
+        </div>
+      )}
+
       {/* Search and Upload Row */}
       <div className="flex items-center gap-2">
         <div className="flex-1">
@@ -471,15 +511,15 @@ export function IconSelector({ selectedIcon, onIconSelect, compact = false }: Ic
             {filteredIcons.map((icon, index) => (
               <div key={`${selectedCategory}-${index}`} className="relative group">
                 <div className="flex flex-col items-center">
-                  <Button
-                    type="button"
-                    variant={selectedIcon === icon ? 'default' : 'outline'}
-                    className={`w-full aspect-square p-2 relative hover:scale-105 transition-transform touch-target ${
-                      compact 
-                        ? 'h-16 text-3xl mb-1' 
-                        : 'h-20 tablet:h-24 desktop:h-28 text-4xl tablet:text-5xl desktop:text-6xl mb-2'
-                    }`}
-                    onClick={() => onIconSelect(icon)}
+                   <Button
+                     type="button"
+                     variant={(Array.isArray(selectedIcon) ? selectedIcon.includes(icon) : selectedIcon === icon) ? 'default' : 'outline'}
+                     className={`w-full aspect-square p-2 relative hover:scale-105 transition-transform touch-target ${
+                       compact 
+                         ? 'h-16 text-3xl mb-1' 
+                         : 'h-20 tablet:h-24 desktop:h-28 text-4xl tablet:text-5xl desktop:text-6xl mb-2'
+                     }`}
+                     onClick={() => handleIconClick(icon)}
                   >
                     {icon.startsWith('http') ? (
                       <img 
@@ -490,11 +530,11 @@ export function IconSelector({ selectedIcon, onIconSelect, compact = false }: Ic
                     ) : (
                       icon
                     )}
-                    {selectedIcon === icon && (
-                      <div className="absolute inset-0 bg-primary/20 rounded flex items-center justify-center">
-                        <div className={compact ? "w-3 h-3 bg-primary rounded-full" : "w-4 h-4 tablet:w-5 tablet:h-5 bg-primary rounded-full"}></div>
-                      </div>
-                    )}
+                     {(Array.isArray(selectedIcon) ? selectedIcon.includes(icon) : selectedIcon === icon) && (
+                       <div className="absolute inset-0 bg-primary/20 rounded flex items-center justify-center">
+                         <div className={compact ? "w-3 h-3 bg-primary rounded-full" : "w-4 h-4 tablet:w-5 tablet:h-5 bg-primary rounded-full"}></div>
+                       </div>
+                     )}
                   </Button>
                   
                   {/* Icon Name */}
