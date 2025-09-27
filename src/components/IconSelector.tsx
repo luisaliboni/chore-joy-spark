@@ -145,8 +145,90 @@ export function IconSelector({ selectedIcon, onIconSelect }: IconSelectorProps) 
     }
   };
 
-  // Get current category icons
+  // Create keyword mapping for better search
+  const getIconsByKeyword = (keyword: string) => {
+    const keywordMap: Record<string, string[]> = {
+      'teeth': ['🦷', '🪥', '🧼', '🚿'],
+      'tooth': ['🦷', '🪥'],
+      'brush': ['🪥', '🧹', '🖌️'],
+      'wash': ['🚿', '🧼', '🧽', '🛁'],
+      'food': ['🍎', '🥕', '🥛', '🍌', '🥪', '🍽️'],
+      'eat': ['🍎', '🥕', '🥛', '🍌', '🥪', '🍽️', '🍴'],
+      'drink': ['🥛', '🥤', '🧃', '🫖'],
+      'school': ['📚', '📝', '✏️', '📖', '🎒'],
+      'homework': ['📚', '📝', '✏️', '📖'],
+      'clean': ['🧹', '🗑️', '🧽', '🚮', '🧼'],
+      'clothes': ['👕', '👖', '🧦', '👟', '🧥'],
+      'jacket': ['🧥', '👔'],
+      'shoes': ['👟', '👠', '🥿'],
+      'socks': ['🧦'],
+      'backpack': ['🎒'],
+      'bag': ['🎒', '👜'],
+      'sleep': ['🛏️', '😴', '🌙'],
+      'bed': ['🛏️'],
+      'play': ['🧸', '🎮', '⚽', '🏀'],
+      'game': ['🎮', '🎲', '🧩'],
+      'toy': ['🧸', '🪀', '🎲', '🧩'],
+      'sport': ['⚽', '🏀', '🎾', '🏈', '🏃'],
+      'music': ['🎵', '🎸', '🎹', '🎤'],
+      'art': ['🎨', '🖼️', '🖌️', '🖍️'],
+      'pet': ['🐕', '🐱', '🐹', '🐰', '🐠'],
+      'dog': ['🐕', '🦮'],
+      'cat': ['🐱'],
+      'car': ['🚗', '🚙', '🏎️'],
+      'bike': ['🚲', '🏍️'],
+      'house': ['🏠', '🏡'],
+      'home': ['🏠', '🏡', '🏘️'],
+      'time': ['⏰', '⏱️', '🕐'],
+      'clock': ['⏰', '⏱️', '🕐'],
+      'book': ['📚', '📖', '📓', '📔'],
+      'write': ['📝', '✏️', '🖊️'],
+      'read': ['📚', '📖', '👀'],
+    };
+
+    const lowerKeyword = keyword.toLowerCase();
+    
+    // Direct keyword match
+    if (keywordMap[lowerKeyword]) {
+      return keywordMap[lowerKeyword];
+    }
+
+    // Partial keyword match
+    const matchingIcons: string[] = [];
+    Object.keys(keywordMap).forEach(key => {
+      if (key.includes(lowerKeyword) || lowerKeyword.includes(key)) {
+        matchingIcons.push(...keywordMap[key]);
+      }
+    });
+
+    return [...new Set(matchingIcons)]; // Remove duplicates
+  };
+
+  // Get current category icons or search results
   const getCurrentCategoryIcons = () => {
+    if (searchTerm) {
+      // When searching, look across all categories
+      const keywordResults = getIconsByKeyword(searchTerm);
+      if (keywordResults.length > 0) {
+        return keywordResults;
+      }
+
+      // Fallback: search in category names and their icons
+      const searchResults: string[] = [];
+      Object.entries(ICON_CATEGORIES).forEach(([category, icons]) => {
+        if (category.toLowerCase().includes(searchTerm.toLowerCase())) {
+          searchResults.push(...icons);
+        }
+      });
+
+      // Also include uploaded icons if searching
+      if (uploadedIcons.length > 0) {
+        searchResults.push(...uploadedIcons);
+      }
+
+      return [...new Set(searchResults)]; // Remove duplicates
+    }
+
     if (selectedCategory === 'Custom Uploads') {
       return uploadedIcons;
     }
@@ -154,11 +236,7 @@ export function IconSelector({ selectedIcon, onIconSelect }: IconSelectorProps) 
   };
 
   const currentIcons = getCurrentCategoryIcons();
-  const filteredIcons = searchTerm 
-    ? currentIcons.filter(icon => 
-        selectedCategory.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : currentIcons;
+  const filteredIcons = currentIcons;
 
   return (
     <div className="space-y-4">
@@ -167,7 +245,7 @@ export function IconSelector({ selectedIcon, onIconSelect }: IconSelectorProps) 
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search icons..."
+            placeholder="Search icons (e.g., teeth, food, school...)"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
@@ -192,25 +270,37 @@ export function IconSelector({ selectedIcon, onIconSelect }: IconSelectorProps) 
         />
       </div>
 
-      {/* Category Selection */}
-      <div className="space-y-2">
-        <Label htmlFor="category-select">Category</Label>
-        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-          <SelectTrigger id="category-select">
-            <SelectValue placeholder="Select a category" />
-          </SelectTrigger>
-          <SelectContent>
-            {Object.keys(ICON_CATEGORIES).map((category) => (
-              <SelectItem key={category} value={category}>
-                {category}
-                {category === 'Custom Uploads' && uploadedIcons.length > 0 && (
-                  <span className="ml-1 text-xs text-muted-foreground">({uploadedIcons.length})</span>
-                )}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      {/* Category Selection - Hide when searching */}
+      {!searchTerm && (
+        <div className="space-y-2">
+          <Label htmlFor="category-select">Category</Label>
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <SelectTrigger id="category-select">
+              <SelectValue placeholder="Select a category" />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.keys(ICON_CATEGORIES).map((category) => (
+                <SelectItem key={category} value={category}>
+                  {category}
+                  {category === 'Custom Uploads' && uploadedIcons.length > 0 && (
+                    <span className="ml-1 text-xs text-muted-foreground">({uploadedIcons.length})</span>
+                  )}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      {/* Search Results Header */}
+      {searchTerm && (
+        <div className="text-sm text-muted-foreground">
+          {filteredIcons.length > 0 
+            ? `Found ${filteredIcons.length} icon${filteredIcons.length !== 1 ? 's' : ''} for "${searchTerm}"`
+            : `No icons found for "${searchTerm}"`
+          }
+        </div>
+      )}
 
       {/* Icons Grid */}
       <div className="border rounded-lg p-4">
@@ -240,14 +330,14 @@ export function IconSelector({ selectedIcon, onIconSelect }: IconSelectorProps) 
                 )}
               </Button>
             ))}
-            {filteredIcons.length === 0 && selectedCategory === 'Custom Uploads' && (
+            {filteredIcons.length === 0 && (
               <div className="col-span-8 text-center py-8 text-muted-foreground text-sm">
-                No custom icons uploaded yet. Use the Upload button to add your own images!
-              </div>
-            )}
-            {filteredIcons.length === 0 && selectedCategory !== 'Custom Uploads' && (
-              <div className="col-span-8 text-center py-8 text-muted-foreground text-sm">
-                No icons found in this category.
+                {searchTerm 
+                  ? `No icons found for "${searchTerm}". Try keywords like: teeth, food, school, clothes, play, etc.`
+                  : selectedCategory === 'Custom Uploads' 
+                    ? "No custom icons uploaded yet. Use the Upload button to add your own images!"
+                    : "No icons found in this category."
+                }
               </div>
             )}
           </div>
