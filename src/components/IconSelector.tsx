@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -96,6 +96,39 @@ export function IconSelector({ selectedIcon, onIconSelect }: IconSelectorProps) 
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Fetch uploaded icons when component mounts
+  useEffect(() => {
+    if (user) {
+      fetchUploadedIcons();
+    }
+  }, [user]);
+
+  const fetchUploadedIcons = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase.storage
+        .from('task-icons')
+        .list(user.id, {
+          limit: 100,
+          offset: 0
+        });
+
+      if (error) throw error;
+
+      const iconUrls = data?.map(file => {
+        const { data: { publicUrl } } = supabase.storage
+          .from('task-icons')
+          .getPublicUrl(`${user.id}/${file.name}`);
+        return publicUrl;
+      }) || [];
+
+      setUploadedIcons(iconUrls);
+    } catch (error) {
+      console.error('Error fetching uploaded icons:', error);
+    }
+  };
+
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file || !user) return;
@@ -132,7 +165,10 @@ export function IconSelector({ selectedIcon, onIconSelect }: IconSelectorProps) 
         .getPublicUrl(fileName);
 
       onIconSelect(publicUrl);
-      setUploadedIcons(prev => [...prev, publicUrl]);
+      
+      // Refresh uploaded icons to include the new one
+      await fetchUploadedIcons();
+      
       toast.success('Image uploaded successfully!');
     } catch (error) {
       console.error('Error uploading image:', error);
