@@ -76,7 +76,7 @@ function SortableTaskAssignment({ assignment, child, onComplete, onUndo }: {
       <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
         <GripVertical className="h-4 w-4 text-muted-foreground" />
       </div>
-      <div className="text-2xl">
+      <div className="text-4xl">
         {assignment.tasks.icon}
       </div>
       <div className="flex-1">

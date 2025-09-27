@@ -41,8 +41,36 @@ interface TaskFormData {
 }
 
 const TASK_ICONS = [
-  '🦷', '🧼', '👕', '🍽️', '🧸', '📚', '🛏️', '🧹', '🗑️', '🐕',
-  '🌱', '🏃', '🎵', '📝', '🧽', '🚿', '🥛', '🍎', '📱', '⚽'
+  // Personal Care
+  '🦷', '🧼', '🚿', '🧽', '🪥', '🧴', '💊', '🩹',
+  // Clothing & Laundry
+  '👕', '👔', '👗', '👖', '🧦', '👞', '🧺', '👚',
+  // Food & Kitchen
+  '🍽️', '🥛', '🍎', '🥕', '🍌', '🥪', '🍳', '🧊', '🫖', '🥤',
+  // Cleaning & Tidying
+  '🧹', '🗑️', '🧽', '🚮', '🪣', '🧴', '🧻', '🪟',
+  // School & Learning
+  '📚', '📝', '✏️', '📖', '🖊️', '📒', '🎒', '📐', '🖍️', '📏',
+  // Pets & Animals
+  '🐕', '🐱', '🐹', '🐰', '🐠', '🦮', '🦴', '🥫',
+  // Outdoor & Garden
+  '🌱', '🌸', '🌿', '🪴', '⛰️', '🌳', '🍃', '🌺',
+  // Sports & Activities
+  '⚽', '🏀', '🎾', '🏈', '🏃', '🚴', '🏊', '🤸', '🧘', '🏋️',
+  // Music & Arts
+  '🎵', '🎸', '🎹', '🎨', '🖼️', '🎭', '🎪', '🎬',
+  // Technology & Games
+  '📱', '💻', '🎮', '📺', '🔌', '💡', '🔋', '📷',
+  // Toys & Fun
+  '🧸', '🪀', '🎲', '🧩', '🪁', '🎯', '🪆', '🎊',
+  // Time & Organization
+  '⏰', '📅', '⏲️', '📝', '📋', '📌', '📍', '🗓️',
+  // Transportation
+  '🚗', '🚌', '🚲', '✈️', '🚂', '🛴', '🚁', '⛵',
+  // Home & Family
+  '🏠', '🏡', '🚪', '🛏️', '🪑', '🛋️', '🚻', '🪟',
+  // Special Occasions
+  '🎉', '🎁', '🎂', '🎈', '⭐', '🏆', '🥇', '🎀'
 ];
 
 const DAYS_OF_WEEK = [
@@ -483,13 +511,13 @@ export default function ManageTasks() {
 
                   <div className="space-y-2">
                     <Label>Task Icon</Label>
-                    <div className="grid grid-cols-10 gap-2">
+                    <div className="grid grid-cols-8 gap-3">
                       {TASK_ICONS.map((icon) => (
                         <Button
                           key={icon}
                           type="button"
                           variant={formData.icon === icon ? 'default' : 'outline'}
-                          className="aspect-square p-2"
+                          className="aspect-square p-3 text-2xl h-14 w-14"
                           onClick={() => setFormData(prev => ({ ...prev, icon }))}
                         >
                           {icon}
