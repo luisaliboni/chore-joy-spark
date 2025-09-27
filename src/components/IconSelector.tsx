@@ -307,14 +307,14 @@ export function IconSelector({ selectedIcon, onIconSelect }: IconSelectorProps) 
   return (
     <div className="space-y-4">
       {/* Search and Upload Row */}
-      <div className="flex flex-col tablet:flex-row items-stretch tablet:items-center gap-3 tablet:gap-2">
+      <div className="flex items-center gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 tablet:h-5 tablet:w-5 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search icons (e.g., teeth, food, school...)"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 tablet:pl-12 h-12 tablet:h-14 text-base tablet:text-lg"
+            className="pl-10"
           />
         </div>
         <Button
@@ -322,9 +322,9 @@ export function IconSelector({ selectedIcon, onIconSelect }: IconSelectorProps) 
           variant="outline"
           onClick={() => fileInputRef.current?.click()}
           disabled={isUploading}
-          className="flex items-center gap-2 shrink-0 h-12 tablet:h-14 px-4 tablet:px-6 text-base tablet:text-lg touch-feedback"
+          className="flex items-center gap-2 shrink-0"
         >
-          <Upload className="h-4 w-4 tablet:h-5 tablet:w-5" />
+          <Upload className="h-4 w-4" />
           {isUploading ? 'Uploading...' : 'Upload'}
         </Button>
         <input
@@ -339,9 +339,9 @@ export function IconSelector({ selectedIcon, onIconSelect }: IconSelectorProps) 
       {/* Category Selection - Hide when searching */}
       {!searchTerm && (
         <div className="space-y-2">
-          <Label htmlFor="category-select" className="text-base tablet:text-lg">Category</Label>
+          <Label htmlFor="category-select">Category</Label>
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger id="category-select" className="h-12 tablet:h-14 text-base tablet:text-lg">
+            <SelectTrigger id="category-select">
               <SelectValue placeholder="Select a category" />
             </SelectTrigger>
             <SelectContent>
@@ -360,7 +360,7 @@ export function IconSelector({ selectedIcon, onIconSelect }: IconSelectorProps) 
 
       {/* Search Results Header */}
       {searchTerm && (
-        <div className="text-sm tablet:text-base text-muted-foreground tablet:py-2">
+        <div className="text-sm text-muted-foreground">
           {filteredIcons.length > 0 
             ? `Found ${filteredIcons.length} icon${filteredIcons.length !== 1 ? 's' : ''} for "${searchTerm}"`
             : `No icons found for "${searchTerm}"`
@@ -369,29 +369,29 @@ export function IconSelector({ selectedIcon, onIconSelect }: IconSelectorProps) 
       )}
 
       {/* Icons Grid */}
-      <div className="border rounded-lg p-3 tablet:p-6">
-        <ScrollArea className="h-72 tablet:h-96 w-full">
-          <div className="grid grid-cols-6 tablet:grid-cols-8 gap-1 tablet:gap-3">
+      <div className="border rounded-lg p-3">
+        <ScrollArea className="h-72 w-full">
+          <div className="grid grid-cols-6 gap-1">
             {filteredIcons.map((icon, index) => (
               <div key={`${selectedCategory}-${index}`} className="relative group">
                 <Button
                   type="button"
                   variant={selectedIcon === icon ? 'default' : 'outline'}
-                  className="aspect-square p-1 h-16 w-16 tablet:h-20 tablet:w-20 text-2xl tablet:text-3xl relative hover:scale-105 transition-transform w-full touch-feedback"
+                  className="aspect-square p-1 h-16 w-16 text-2xl relative hover:scale-105 transition-transform w-full"
                   onClick={() => onIconSelect(icon)}
                 >
                   {icon.startsWith('http') ? (
                     <img 
                       src={icon} 
                       alt="Custom icon" 
-                      className="w-12 h-12 tablet:w-16 tablet:h-16 object-cover rounded"
+                      className="w-12 h-12 object-cover rounded"
                     />
                   ) : (
                     icon
                   )}
                   {selectedIcon === icon && (
                     <div className="absolute inset-0 bg-primary/20 rounded flex items-center justify-center">
-                      <div className="w-3 h-3 tablet:w-4 tablet:h-4 bg-primary rounded-full"></div>
+                      <div className="w-3 h-3 bg-primary rounded-full"></div>
                     </div>
                   )}
                 </Button>
@@ -401,19 +401,19 @@ export function IconSelector({ selectedIcon, onIconSelect }: IconSelectorProps) 
                     type="button"
                     variant="destructive"
                     size="sm"
-                    className="absolute -top-1 -right-1 h-6 w-6 tablet:h-8 tablet:w-8 rounded-full p-0 opacity-0 group-hover:opacity-100 transition-opacity touch-target"
+                    className="absolute -top-1 -right-1 h-6 w-6 rounded-full p-0 opacity-0 group-hover:opacity-100 transition-opacity"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDeleteIcon(icon);
                     }}
                   >
-                    <X className="h-3 w-3 tablet:h-4 tablet:w-4" />
+                    <X className="h-3 w-3" />
                   </Button>
                 )}
               </div>
             ))}
             {filteredIcons.length === 0 && (
-              <div className="col-span-6 tablet:col-span-8 text-center py-8 text-muted-foreground text-sm tablet:text-base tablet:py-12">
+              <div className="col-span-6 text-center py-8 text-muted-foreground text-sm">
                 {searchTerm 
                   ? `No icons found for "${searchTerm}". Try keywords like: teeth, food, school, clothes, play, etc.`
                   : selectedCategory === 'Custom Uploads' 

@@ -57,43 +57,43 @@ function SortableRewardItem({ reward, onEdit, onDelete, onToggleAvailability }: 
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-4 tablet:gap-6 p-4 tablet:p-6 border rounded-lg transition-all touch-feedback ${
+      className={`flex items-center gap-4 p-4 border rounded-lg transition-all ${
         reward.is_available ? 'bg-card' : 'bg-muted/50 opacity-60'
       }`}
     >
       <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
-        <GripVertical className="h-5 w-5 tablet:h-6 tablet:w-6 text-muted-foreground" />
+        <GripVertical className="h-5 w-5 text-muted-foreground" />
       </div>
-      <div className="text-2xl tablet:text-3xl min-w-[2rem] tablet:min-w-[3rem] h-8 tablet:h-12 flex items-center justify-center">
+      <div className="text-2xl min-w-[2rem] h-8 flex items-center justify-center">
         {reward.icon.startsWith('http') ? (
           <img 
             src={reward.icon} 
             alt="Reward icon" 
-            className="w-8 h-8 tablet:w-12 tablet:h-12 object-cover rounded"
+            className="w-8 h-8 object-cover rounded"
           />
         ) : (
           reward.icon
         )}
       </div>
       <div className="flex-1">
-        <h3 className="font-medium text-base tablet:text-lg">{reward.title}</h3>
-        <p className="text-sm tablet:text-base text-muted-foreground">{reward.cost_points} points</p>
+        <h3 className="font-medium">{reward.title}</h3>
+        <p className="text-sm text-muted-foreground">{reward.cost_points} points</p>
       </div>
-      <div className="flex items-center gap-3 tablet:gap-4">
+      <div className="flex items-center gap-2">
         <Switch
           checked={reward.is_available}
           onCheckedChange={(checked) => onToggleAvailability(reward.id, checked)}
         />
-        <span className="text-xs tablet:text-sm text-muted-foreground">
+        <span className="text-xs text-muted-foreground">
           {reward.is_available ? 'Available' : 'Hidden'}
         </span>
       </div>
-      <div className="flex gap-2 tablet:gap-3">
-        <Button size="sm" variant="outline" onClick={() => onEdit(reward)} className="h-10 tablet:h-12 w-10 tablet:w-12 touch-feedback">
-          <Edit className="h-4 w-4 tablet:h-5 tablet:w-5" />
+      <div className="flex gap-2">
+        <Button size="sm" variant="outline" onClick={() => onEdit(reward)}>
+          <Edit className="h-4 w-4" />
         </Button>
-        <Button size="sm" variant="destructive" onClick={() => onDelete(reward.id)} className="h-10 tablet:h-12 w-10 tablet:w-12 touch-feedback">
-          <Trash2 className="h-4 w-4 tablet:h-5 tablet:w-5" />
+        <Button size="sm" variant="destructive" onClick={() => onDelete(reward.id)}>
+          <Trash2 className="h-4 w-4" />
         </Button>
       </div>
     </div>
@@ -271,50 +271,49 @@ export default function ManageRewards() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-child2/10 p-4 tablet:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-child2/10 p-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="flex flex-col tablet:flex-row items-start tablet:items-center justify-between mb-8 gap-4">
+        <div className="flex items-center justify-between mb-8">
           <Button
             variant="ghost"
             onClick={() => navigate('/settings')}
-            className="flex items-center gap-2 h-12 tablet:h-14 px-4 tablet:px-6 text-base tablet:text-lg touch-feedback"
+            className="flex items-center gap-2"
           >
-            <ArrowLeft className="h-4 w-4 tablet:h-5 tablet:w-5" />
+            <ArrowLeft className="h-4 w-4" />
             Back to Settings
           </Button>
           
           <div className="text-center">
-            <h1 className="text-2xl tablet:text-3xl font-bold">Manage Rewards</h1>
-            <p className="text-muted-foreground tablet:text-lg">Set up rewards that kids can earn with their points</p>
+            <h1 className="text-2xl font-bold">Manage Rewards</h1>
+            <p className="text-muted-foreground">Set up rewards that kids can earn with their points</p>
           </div>
           
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="flex items-center gap-2 h-12 tablet:h-14 px-4 tablet:px-6 text-base tablet:text-lg touch-feedback">
-                <Plus className="h-4 w-4 tablet:h-5 tablet:w-5" />
+              <Button className="flex items-center gap-2">
+                <Plus className="h-4 w-4" />
                 Add Reward
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl tablet:max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogContent>
               <DialogHeader>
-                <DialogTitle className="text-xl tablet:text-2xl">{editingReward ? 'Edit Reward' : 'Create New Reward'}</DialogTitle>
+                <DialogTitle>{editingReward ? 'Edit Reward' : 'Create New Reward'}</DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-6 tablet:space-y-8">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="title" className="text-base tablet:text-lg">Reward Title</Label>
+                  <Label htmlFor="title">Reward Title</Label>
                   <Input
                     id="title"
                     value={formData.title}
                     onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                     placeholder="e.g., Screen time - 40 minutes"
                     required
-                    className="h-12 tablet:h-14 text-base tablet:text-lg"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="cost" className="text-base tablet:text-lg">Cost in Points</Label>
+                  <Label htmlFor="cost">Cost in Points</Label>
                   <Input
                     id="cost"
                     type="number"
@@ -323,28 +322,27 @@ export default function ManageRewards() {
                     value={formData.cost_points}
                     onChange={(e) => setFormData(prev => ({ ...prev, cost_points: parseInt(e.target.value) || 1 }))}
                     required
-                    className="h-12 tablet:h-14 text-base tablet:text-lg"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-base tablet:text-lg">Reward Icon</Label>
+                  <Label>Reward Icon</Label>
                   <IconSelector
                     selectedIcon={formData.icon}
                     onIconSelect={(icon) => setFormData(prev => ({ ...prev, icon }))}
                   />
                 </div>
 
-                <div className="flex items-center space-x-3 tablet:space-x-4 p-3 tablet:p-4 border rounded-lg">
+                <div className="flex items-center space-x-2">
                   <Switch
                     id="available"
                     checked={formData.is_available}
                     onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_available: checked }))}
                   />
-                  <Label htmlFor="available" className="text-base tablet:text-lg cursor-pointer">Available for redemption</Label>
+                  <Label htmlFor="available">Available for redemption</Label>
                 </div>
 
-                <div className="flex flex-col tablet:flex-row gap-3 tablet:gap-4 pt-4">
+                <div className="flex gap-2 justify-end">
                   <Button
                     type="button"
                     variant="outline"
@@ -353,11 +351,10 @@ export default function ManageRewards() {
                       setEditingReward(null);
                       setFormData({ title: '', icon: '🎁', cost_points: 10, is_available: true });
                     }}
-                    className="h-12 tablet:h-14 px-6 tablet:px-8 text-base tablet:text-lg touch-feedback"
                   >
                     Cancel
                   </Button>
-                  <Button type="submit" className="h-12 tablet:h-14 px-6 tablet:px-8 text-base tablet:text-lg touch-feedback">
+                  <Button type="submit">
                     {editingReward ? 'Update Reward' : 'Create Reward'}
                   </Button>
                 </div>
@@ -369,35 +366,35 @@ export default function ManageRewards() {
         {/* Rewards List */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-xl tablet:text-2xl">Rewards ({rewards.length})</CardTitle>
+            <CardTitle>Rewards ({rewards.length})</CardTitle>
           </CardHeader>
           <CardContent>
-              {rewards.length === 0 ? (
-                <div className="text-center py-12 tablet:py-16 text-muted-foreground">
-                  <p className="text-base tablet:text-lg">No rewards created yet. Add your first reward above!</p>
-                </div>
-              ) : (
-                <DndContext
-                  sensors={sensors}
-                  collisionDetection={closestCenter}
-                  onDragEnd={handleDragEnd}
-                  modifiers={[restrictToVerticalAxis]}
-                >
-                  <SortableContext items={rewards.map(r => r.id)} strategy={verticalListSortingStrategy}>
-                    <div className="space-y-3 tablet:space-y-4">
-                      {rewards.map((reward) => (
-                        <SortableRewardItem
-                          key={reward.id}
-                          reward={reward}
-                          onEdit={handleEdit}
-                          onDelete={handleDelete}
-                          onToggleAvailability={handleToggleAvailability}
-                        />
-                      ))}
-                    </div>
-                  </SortableContext>
-                </DndContext>
-              )}
+            {rewards.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                No rewards created yet. Add your first reward above!
+              </div>
+            ) : (
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+                modifiers={[restrictToVerticalAxis]}
+              >
+                <SortableContext items={rewards.map(r => r.id)} strategy={verticalListSortingStrategy}>
+                  <div className="space-y-3">
+                    {rewards.map((reward) => (
+                      <SortableRewardItem
+                        key={reward.id}
+                        reward={reward}
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                        onToggleAvailability={handleToggleAvailability}
+                      />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
+            )}
           </CardContent>
         </Card>
       </div>

@@ -169,69 +169,68 @@ export default function Points() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-child2/10 p-2 sm:p-4 lg:p-6">
-      <div className="max-w-5xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-child2/10 p-4">
+      <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row items-center justify-between mb-6 sm:mb-8 gap-4">
+        <div className="flex items-center justify-between mb-8">
           <Button
             variant="ghost"
             onClick={() => navigate('/')}
-            className="flex items-center gap-2 text-xs sm:text-sm self-start sm:self-center"
+            className="flex items-center gap-2"
           >
-            <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4" />
-            <span className="hidden sm:inline">Back to </span>Chores
+            <ArrowLeft className="h-4 w-4" />
+            Back to Chores
           </Button>
           
           <div className="text-center">
-            <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold">Points & Rewards</h1>
-            <p className="text-xs sm:text-sm text-muted-foreground">{getCurrentWeek()}</p>
+            <h1 className="text-2xl font-bold">Points & Rewards</h1>
+            <p className="text-muted-foreground">{getCurrentWeek()}</p>
           </div>
           
-          <div className="hidden sm:block" />
+          <div />
         </div>
 
         {/* Children Points Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           {children.map((child) => (
             <Card key={child.id} className="overflow-hidden">
               <CardHeader 
-                className="text-white p-4 sm:p-6"
+                className="text-white"
                 style={{
                   background: child.child_order === 1 
                     ? 'var(--gradient-child1)' 
                     : 'var(--gradient-child2)'
                 }}
               >
-                <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                <CardTitle className="flex items-center gap-2">
                   ⭐ {child.name}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-4 sm:p-6">
-                <div className="text-center mb-4 sm:mb-6">
-                  <div className="text-2xl sm:text-4xl font-bold mb-2">{child.weekly_points}</div>
-                  <div className="text-xs sm:text-sm text-muted-foreground">Points This Week</div>
+              <CardContent className="p-6">
+                <div className="text-center mb-6">
+                  <div className="text-4xl font-bold mb-2">{child.weekly_points}</div>
+                  <div className="text-sm text-muted-foreground">Points This Week</div>
                   <div className="mt-2 text-xs text-muted-foreground">
                     Achievement Level: {child.weekly_points >= 50 ? 'Chore Champion' : 'Getting There'}
                   </div>
                 </div>
                 
-                <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                <div className="flex gap-2 justify-center">
                   <Button
                     size="sm"
                     onClick={() => openPointsDialog(child.id, child.name, 'good')}
-                    className="bg-success text-white text-xs sm:text-sm"
+                    className="bg-success text-white"
                   >
-                    <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                    <span className="hidden sm:inline">Good </span>Behavior
+                    <Plus className="h-4 w-4 mr-1" />
+                    Good Behavior
                   </Button>
                   <Button
                     size="sm"
                     variant="destructive"
                     onClick={() => openPointsDialog(child.id, child.name, 'bad')}
-                    className="text-xs sm:text-sm"
                   >
-                    <Minus className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                    <span className="hidden sm:inline">Bad </span>Behavior
+                    <Minus className="h-4 w-4 mr-1" />
+                    Bad Behavior
                   </Button>
                 </div>
               </CardContent>
@@ -240,35 +239,34 @@ export default function Points() {
         </div>
 
         {/* Available Rewards */}
-        <Card className="mb-6 sm:mb-8">
-          <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
               🎁 Available Rewards
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-4 sm:p-6">
+          <CardContent>
             {rewards.length === 0 ? (
-              <div className="text-center py-6 sm:py-8 text-muted-foreground text-sm">
+              <div className="text-center py-8 text-muted-foreground">
                 No rewards available. Add some in the settings!
               </div>
             ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {rewards.map((reward) => (
-                  <div key={reward.id} className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-3 sm:p-4 border rounded-lg">
-                    <div className="text-xl sm:text-2xl shrink-0">{reward.icon}</div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-sm sm:text-base">{reward.title}</h3>
+                  <div key={reward.id} className="flex items-center gap-4 p-4 border rounded-lg">
+                    <div className="text-2xl">{reward.icon}</div>
+                    <div className="flex-1">
+                      <h3 className="font-medium">{reward.title}</h3>
                     </div>
-                    <div className="flex flex-col sm:text-center w-full sm:w-auto">
-                      <div className="text-sm sm:text-lg font-bold text-primary mb-2">{reward.cost_points} Points</div>
-                      <div className="flex flex-wrap gap-1 sm:gap-1">
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-primary">{reward.cost_points} Points</div>
+                      <div className="flex gap-1 mt-2">
                         {children.map((child) => (
                           <Button
                             key={child.id}
                             size="sm"
                             disabled={child.weekly_points < reward.cost_points}
                             onClick={() => redeemReward(child.id, reward)}
-                            className="text-xs flex-1 sm:flex-none"
                             style={{
                               backgroundColor: child.weekly_points >= reward.cost_points 
                                 ? (child.child_order === 1 ? 'hsl(var(--child1-color))' : 'hsl(var(--child2-color))')
@@ -285,7 +283,7 @@ export default function Points() {
               </div>
             )}
             
-            <div className="text-center mt-4 sm:mt-6 text-xs sm:text-sm text-muted-foreground">
+            <div className="text-center mt-6 text-sm text-muted-foreground">
               ✨ Complete your chores to earn points and unlock these amazing rewards! ✨
             </div>
           </CardContent>
