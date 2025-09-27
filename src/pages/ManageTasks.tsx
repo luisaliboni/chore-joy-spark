@@ -279,6 +279,12 @@ export default function ManageTasks() {
           .single();
         
         task = data;
+
+        // Delete existing assignments for this task
+        await supabase
+          .from('task_assignments')
+          .delete()
+          .eq('task_id', editingTask.id);
       } else {
         // Create new task
         const { data } = await supabase
@@ -338,14 +344,27 @@ export default function ManageTasks() {
     }
   };
 
-  const handleEdit = (task: Task) => {
+  const handleEdit = async (task: Task) => {
     setEditingTask(task);
+    
+    // Get current assignments for this task
+    const currentAssignments = Object.values(taskAssignments).flat().filter(
+      assignment => assignment.task_id === task.id
+    );
+    
+    const assignedChildren = [...new Set(currentAssignments.map(a => a.child_id))];
+    const assignedWeekdays = [...new Set(currentAssignments.map(a => a.weekday))];
+    const assignedDays = assignedWeekdays.map(weekday => {
+      const dayIndex = weekday === 0 ? 6 : weekday - 1; // Convert from JS day format back to our format
+      return DAYS_OF_WEEK[dayIndex]?.id;
+    }).filter(Boolean);
+
     setFormData({
       title: task.title,
       icon: task.icon,
       points: task.points,
-      assignTo: [],
-      days: []
+      assignTo: assignedChildren,
+      days: assignedDays
     });
     setIsDialogOpen(true);
   };
@@ -479,10 +498,8 @@ export default function ManageTasks() {
                     </div>
                   </div>
 
-                  {!editingTask && (
-                    <>
-                      <div className="space-y-2">
-                        <Label>Assign to Children</Label>
+                  <div className="space-y-2">
+                    <Label>Assign to Children</Label>
                         <div className="space-y-2">
                           {children.map((child) => (
                             <div key={child.id} className="flex items-center space-x-2">
@@ -507,10 +524,10 @@ export default function ManageTasks() {
                             </div>
                           ))}
                         </div>
-                      </div>
+                  </div>
 
-                      <div className="space-y-2">
-                        <Label>Assign to Days</Label>
+                  <div className="space-y-2">
+                    <Label>Assign to Days</Label>
                         <div className="grid grid-cols-2 gap-2">
                           {DAYS_OF_WEEK.map((day) => (
                             <div key={day.id} className="flex items-center space-x-2">
@@ -535,9 +552,7 @@ export default function ManageTasks() {
                             </div>
                           ))}
                         </div>
-                      </div>
-                    </>
-                  )}
+                  </div>
 
                   <div className="flex gap-2 justify-end">
                     <Button
