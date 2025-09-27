@@ -255,9 +255,13 @@ export default function Points() {
               <div className="grid grid-cols-1 desktop:grid-cols-2 gap-4">
                 {rewards.map((reward) => (
                   <div key={reward.id} className="flex items-center gap-responsive p-responsive border rounded-lg">
-                    <div className="text-xl tablet:text-2xl desktop:text-3xl">
+                    <div className="text-5xl tablet:text-6xl desktop:text-7xl min-w-[4rem] tablet:min-w-[5rem] desktop:min-w-[6rem] flex items-center justify-center">
                       {reward.icon.startsWith('http') ? (
-                        <img src={reward.icon} alt="Reward icon" className="icon-responsive object-cover rounded" />
+                        <img 
+                          src={reward.icon} 
+                          alt="Reward icon" 
+                          className="w-16 h-16 tablet:w-20 tablet:h-20 desktop:w-24 desktop:h-24 object-cover rounded" 
+                        />
                       ) : (
                         reward.icon
                       )}
