@@ -88,6 +88,57 @@ const ICON_CATEGORIES = {
   'Custom Uploads': []
 };
 
+// Icon names mapping for display
+const ICON_NAMES: Record<string, string> = {
+  // Daily Tasks
+  '🧥': 'Jacket', '👕': 'Shirt', '👖': 'Pants', '🧦': 'Socks', '👟': 'Shoes', 
+  '👠': 'Dress Shoes', '🎒': 'Backpack', '📚': 'Books', '✏️': 'Pencil', '📝': 'Write',
+  '🧽': 'Sponge', '🚿': 'Shower', '🪥': 'Brush Teeth', '🧴': 'Shampoo', '🧼': 'Soap', 
+  '🛏️': 'Make Bed', '🧹': 'Sweep', '🗑️': 'Trash', '🧺': 'Laundry', '👔': 'Dress Shirt',
+
+  // Food & Drinks
+  '🍎': 'Apple', '🥕': 'Carrot', '🥛': 'Milk', '🍌': 'Banana', '🥪': 'Sandwich',
+  '🍽️': 'Dinner', '🥄': 'Spoon', '🍴': 'Fork', '🥤': 'Drink', '🧃': 'Juice',
+  '🍇': 'Grapes', '🍊': 'Orange', '🥒': 'Cucumber', '🍞': 'Bread', '🧀': 'Cheese',
+
+  // Hygiene & Health
+  '🦷': 'Tooth', '🛁': 'Bath', '💊': 'Medicine', '🩹': 'Bandage', '🌡️': 'Temperature',
+  '💉': 'Shot', '🪒': 'Shave', '💅': 'Nails', '👶': 'Baby Care', '🧻': 'Tissue',
+
+  // School & Learning
+  '📖': 'Read', '📓': 'Notebook', '📔': 'Journal', '📒': 'Ledger', '📕': 'Book',
+  '📗': 'Green Book', '📘': 'Blue Book', '📙': 'Yellow Book', '📐': 'Ruler', '📏': 'Measure',
+  '✂️': 'Scissors', '📎': 'Clip', '📌': 'Pin', '🖇️': 'Clips', '📋': 'Clipboard',
+
+  // Sports & Activities
+  '⚽': 'Soccer', '🏀': 'Basketball', '🏈': 'Football', '⚾': 'Baseball', '🎾': 'Tennis',
+  '🏐': 'Volleyball', '🏓': 'Ping Pong', '🏸': 'Badminton', '🥅': 'Goal', '🏹': 'Archery',
+  '🎯': 'Target', '🏊': 'Swimming', '🚴': 'Biking', '🏃': 'Running', '⛹️': 'Basketball',
+
+  // Entertainment
+  '🎮': 'Gaming', '📱': 'Phone', '💻': 'Computer', '📺': 'TV', '🎵': 'Music',
+  '🎶': 'Song', '🎤': 'Microphone', '🎧': 'Headphones', '📻': 'Radio', '🎬': 'Movie',
+
+  // Animals
+  '🐶': 'Dog', '🐱': 'Cat', '🐭': 'Mouse', '🐹': 'Hamster', '🐰': 'Rabbit',
+  '🦊': 'Fox', '🐻': 'Bear', '🐼': 'Panda', '🐨': 'Koala', '🐯': 'Tiger',
+
+  // Emotions
+  '😀': 'Happy', '😃': 'Smile', '😄': 'Laugh', '😁': 'Grin', '😆': 'Joy',
+  '😅': 'Sweat', '😂': 'Tears', '🤣': 'Rolling', '😊': 'Blush', '😇': 'Angel',
+
+  // Rewards & Achievements  
+  '🏆': 'Trophy', '🥇': 'Gold Medal', '🥈': 'Silver Medal', '🥉': 'Bronze Medal', '🎖️': 'Medal',
+  '🏅': 'Sports Medal', '⭐': 'Star', '🌟': 'Glowing Star', '✨': 'Sparkles', '💎': 'Diamond',
+  '👑': 'Crown', '🎗️': 'Ribbon', '🎀': 'Bow', '🎁': 'Gift', '💰': 'Money'
+};
+
+// Helper function to get icon name
+const getIconName = (icon: string): string => {
+  if (icon.startsWith('http')) return 'Custom';
+  return ICON_NAMES[icon] || 'Icon';
+};
+
 const ALL_ICONS_CATEGORY = 'All Icons';
 
 export function IconSelector({ selectedIcon, onIconSelect }: IconSelectorProps) {
@@ -351,28 +402,40 @@ export function IconSelector({ selectedIcon, onIconSelect }: IconSelectorProps) 
         />
       </div>
 
-      {/* Category Selection - Hide when searching */}
+      {/* Category Selection - Horizontal Buttons */}
       {!searchTerm && (
         <div className="space-y-2">
-          <Label htmlFor="category-select" className="text-responsive-sm">Category</Label>
-          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger id="category-select">
-              <SelectValue placeholder="Select a category" />
-            </SelectTrigger>
-            <SelectContent className="bg-popover border border-border shadow-lg z-50">
-              <SelectItem key={ALL_ICONS_CATEGORY} value={ALL_ICONS_CATEGORY}>
-                {ALL_ICONS_CATEGORY}
-              </SelectItem>
-              {Object.keys(ICON_CATEGORIES).map((category) => (
-                <SelectItem key={category} value={category}>
-                  {category}
-                  {category === 'Custom Uploads' && uploadedIcons.length > 0 && (
-                    <span className="ml-1 text-xs text-muted-foreground">({uploadedIcons.length})</span>
-                  )}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Label className="text-responsive-sm">Category</Label>
+          <div className="flex flex-wrap gap-2 p-2 bg-muted/30 rounded-lg">
+            <button
+              type="button"
+              onClick={() => setSelectedCategory(ALL_ICONS_CATEGORY)}
+              className={`px-3 py-1.5 rounded-full text-responsive-xs font-medium transition-colors ${
+                selectedCategory === ALL_ICONS_CATEGORY
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-background hover:bg-accent text-foreground'
+              }`}
+            >
+              {ALL_ICONS_CATEGORY}
+            </button>
+            {Object.keys(ICON_CATEGORIES).map((category) => (
+              <button
+                key={category}
+                type="button"
+                onClick={() => setSelectedCategory(category)}
+                className={`px-3 py-1.5 rounded-full text-responsive-xs font-medium transition-colors ${
+                  selectedCategory === category
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-background hover:bg-accent text-foreground'
+                }`}
+              >
+                {category}
+                {category === 'Custom Uploads' && uploadedIcons.length > 0 && (
+                  <span className="ml-1 text-xs opacity-70">({uploadedIcons.length})</span>
+                )}
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
@@ -389,30 +452,38 @@ export function IconSelector({ selectedIcon, onIconSelect }: IconSelectorProps) 
       {/* Icons Grid */}
       <div className="border rounded-lg p-responsive">
         <ScrollArea className="h-60 tablet:h-72 desktop:h-80 w-full">
-          <div className="grid grid-cols-4 tablet:grid-cols-6 desktop:grid-cols-8 gap-2">
+          <div className="grid grid-cols-3 tablet:grid-cols-4 desktop:grid-cols-6 gap-3">
             {filteredIcons.map((icon, index) => (
               <div key={`${selectedCategory}-${index}`} className="relative group">
-                <Button
-                  type="button"
-                  variant={selectedIcon === icon ? 'default' : 'outline'}
-                  className="aspect-square p-1 h-12 w-12 tablet:h-16 tablet:w-16 desktop:h-20 desktop:w-20 text-lg tablet:text-xl desktop:text-2xl relative hover:scale-105 transition-transform w-full touch-target"
-                  onClick={() => onIconSelect(icon)}
-                >
-                  {icon.startsWith('http') ? (
-                    <img 
-                      src={icon} 
-                      alt="Custom icon" 
-                      className="w-8 h-8 tablet:w-12 tablet:h-12 desktop:w-16 desktop:h-16 object-cover rounded"
-                    />
-                  ) : (
-                    icon
-                  )}
-                  {selectedIcon === icon && (
-                    <div className="absolute inset-0 bg-primary/20 rounded flex items-center justify-center">
-                      <div className="w-2 h-2 tablet:w-3 tablet:h-3 bg-primary rounded-full"></div>
-                    </div>
-                  )}
-                </Button>
+                <div className="flex flex-col items-center">
+                  <Button
+                    type="button"
+                    variant={selectedIcon === icon ? 'default' : 'outline'}
+                    className="aspect-square p-1 h-12 w-12 tablet:h-16 tablet:w-16 desktop:h-20 desktop:w-20 text-lg tablet:text-xl desktop:text-2xl relative hover:scale-105 transition-transform touch-target mb-1"
+                    onClick={() => onIconSelect(icon)}
+                  >
+                    {icon.startsWith('http') ? (
+                      <img 
+                        src={icon} 
+                        alt="Custom icon" 
+                        className="w-8 h-8 tablet:w-12 tablet:h-12 desktop:w-16 desktop:h-16 object-cover rounded"
+                      />
+                    ) : (
+                      icon
+                    )}
+                    {selectedIcon === icon && (
+                      <div className="absolute inset-0 bg-primary/20 rounded flex items-center justify-center">
+                        <div className="w-2 h-2 tablet:w-3 tablet:h-3 bg-primary rounded-full"></div>
+                      </div>
+                    )}
+                  </Button>
+                  
+                  {/* Icon Name */}
+                  <span className="text-xs tablet:text-sm font-medium text-center text-muted-foreground leading-tight max-w-full">
+                    {getIconName(icon)}
+                  </span>
+                </div>
+                
                 {/* Delete button for custom uploaded icons */}
                 {icon.startsWith('http') && (
                   <Button
