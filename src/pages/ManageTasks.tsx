@@ -243,14 +243,21 @@ export default function ManageTasks() {
               tasks (
                 title,
                 icon,
-                points
+                points,
+                display_order
               )
             `)
             .eq('user_id', user.id)
             .eq('child_id', child.id)
             .order('weekday', { ascending: true });
 
-          assignments[child.id] = data || [];
+          // Sort task assignments by the task's display_order to maintain creation order
+          const sortedData = (data || []).sort((a, b) => {
+            const orderA = a.tasks?.display_order ?? 0;
+            const orderB = b.tasks?.display_order ?? 0;
+            return orderA - orderB;
+          });
+          assignments[child.id] = sortedData;
         }
       }
 
@@ -328,7 +335,7 @@ export default function ManageTasks() {
               child_id: childId,
               assigned_date: new Date().toISOString().split('T')[0], // Keep for compatibility
               weekday: weekday,
-              display_order: 0
+              display_order: task.display_order // Use the task's display_order
             });
           }
         }

@@ -24,6 +24,7 @@ interface Task {
   title: string;
   icon: string;
   points: number;
+  display_order: number;
 }
 
 interface Child {
@@ -239,12 +240,15 @@ export default function ManageRoutines() {
           for (let i = 0; i < selectedRoutine.task_ids.length; i++) {
             const taskId = selectedRoutine.task_ids[i];
             if (!existingTaskIds.has(taskId)) {
+              // Find the task to get its display_order
+              const task = tasks.find(t => t.id === taskId);
+              
               assignments.push({
                 user_id: user.id,
                 task_id: taskId,
                 child_id: childId,
                 assigned_date: dateStr,
-                display_order: i
+                display_order: task?.display_order ?? i
               });
             }
           }
