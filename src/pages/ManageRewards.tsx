@@ -61,8 +61,8 @@ function SortableRewardItem({ reward, onEdit, onDelete, onToggleAvailability }: 
         reward.is_available ? 'bg-card' : 'bg-muted/50 opacity-60'
       }`}
     >
-      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-2 -m-2 touch-target">
-        <GripVertical className="h-5 w-5 text-muted-foreground" />
+      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-3 -m-3 min-w-[48px] min-h-[48px] tablet:min-w-[56px] tablet:min-h-[56px] flex items-center justify-center touch-target">
+        <GripVertical className="h-6 w-6 tablet:h-7 tablet:w-7 text-muted-foreground" />
       </div>
       {reward.icon && (
         <div className="text-xl tablet:text-2xl desktop:text-3xl min-w-[2rem] h-8 tablet:h-10 desktop:h-12 flex items-center justify-center">
@@ -117,7 +117,12 @@ export default function ManageRewards() {
   });
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+        delay: 100,
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })

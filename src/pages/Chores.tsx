@@ -73,8 +73,8 @@ function SortableTaskAssignment({ assignment, child, onComplete, onUndo }: {
           : 'bg-card hover:bg-accent/50'
       }`}
     >
-      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
-        <GripVertical className="h-4 w-4 text-muted-foreground" />
+      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-3 -m-3 min-w-[48px] min-h-[48px] tablet:min-w-[56px] tablet:min-h-[56px] flex items-center justify-center touch-target">
+        <GripVertical className="h-6 w-6 tablet:h-7 tablet:w-7 text-muted-foreground" />
       </div>
       <div className="text-2xl tablet:text-3xl desktop:text-4xl">
         {assignment.tasks.icon.startsWith('http') ? (
@@ -125,7 +125,12 @@ export default function Chores() {
   }>({ show: false, points: 0 });
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+        delay: 100,
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })

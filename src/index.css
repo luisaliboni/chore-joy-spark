@@ -130,6 +130,15 @@ All colors MUST be HSL.
     @apply min-h-[44px] min-w-[44px] tablet:min-h-[48px] tablet:min-w-[48px]; 
   }
   
+  /* Enhanced drag handle touch targets for tablets */
+  .drag-handle {
+    @apply touch-target cursor-grab active:cursor-grabbing;
+    @apply p-3 -m-3;
+    @apply min-w-[48px] min-h-[48px] tablet:min-w-[56px] tablet:min-h-[56px];
+    @apply flex items-center justify-center;
+    @apply transition-colors hover:bg-accent/50 active:bg-accent;
+  }
+  
   /* Responsive padding and margins */
   .p-responsive { @apply p-3 tablet:p-4 desktop:p-6; }
   .px-responsive { @apply px-3 tablet:px-4 desktop:px-6; }
