@@ -264,11 +264,9 @@ export default function ManageTasks() {
             .eq('child_id', child.id)
             .order('weekday', { ascending: true });
 
-          // Sort task assignments by the task's display_order to maintain creation order
+          // Sort task assignments by their display_order to match the Chores screen ordering
           const sortedData = (data || []).sort((a, b) => {
-            const orderA = a.tasks?.display_order ?? 0;
-            const orderB = b.tasks?.display_order ?? 0;
-            return orderA - orderB;
+            return (a.display_order ?? 0) - (b.display_order ?? 0);
           });
           assignments[child.id] = sortedData;
         }
