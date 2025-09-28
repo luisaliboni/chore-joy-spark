@@ -91,6 +91,10 @@ const ICON_CATEGORIES = {
     '👑', '🎗️', '🎀', '🎁', '💰', '💵', '💴', '💶', '💷', '🪙',
     '🎊', '🎉', '🎈', '🎂', '🍰', '🍭', '🍬', '🧁', '🎪', '🎭'
   ],
+  'Spiritual & Faith': [
+    '🙏', '⛪', '✝️', '🕯️', '📿', '🛐', '☪️', '✡️', '🕊️', '👼',
+    '🌅', '🌟', '✨', '💫', '🎵', '📖', '💒', '⛩️', '🧘', '🤲'
+  ],
   'Custom Uploads': []
 };
 
@@ -142,7 +146,12 @@ const ICON_NAMES: Record<string, string> = {
   // Rewards & Achievements  
   '🏆': 'Trophy', '🥇': 'Gold Medal', '🥈': 'Silver Medal', '🥉': 'Bronze Medal', '🎖️': 'Medal',
   '🏅': 'Sports Medal', '⭐': 'Star', '🌟': 'Glowing Star', '✨': 'Sparkles', '💎': 'Diamond',
-  '👑': 'Crown', '🎗️': 'Ribbon', '🎀': 'Bow', '🎁': 'Gift', '💰': 'Money'
+  '👑': 'Crown', '🎗️': 'Ribbon', '🎀': 'Bow', '🎁': 'Gift', '💰': 'Money',
+
+  // Spiritual & Faith
+  '🙏': 'Prayer', '⛪': 'Church', '✝️': 'Cross', '🕯️': 'Candle', '📿': 'Prayer Beads',
+  '🛐': 'Worship', '☪️': 'Star and Crescent', '✡️': 'Star of David', '🕊️': 'Dove', '👼': 'Angel',
+  '💒': 'Wedding Chapel', '⛩️': 'Shrine', '🧘': 'Meditation', '🤲': 'Palms Together'
 };
 
 // Helper function to get icon name
@@ -328,7 +337,16 @@ export function IconSelector({ selectedIcon, onIconSelect, compact = false, allo
       'storage': ['🗄️', '🗃️', '📦', '🪄'],
       'cabinet': ['🗄️', '🗃️'],
       'drawer': ['🪄', '🗃️'],
-      'box': ['📦', '🗃️']
+      'box': ['📦', '🗃️'],
+      'prayer': ['🙏', '📿', '🛐', '🧘', '🤲'],
+      'pray': ['🙏', '📿', '🛐', '🧘', '🤲'],
+      'church': ['⛪', '💒', '✝️', '🕯️'],
+      'faith': ['🙏', '⛪', '✝️', '🕯️', '📿', '🛐', '🕊️'],
+      'worship': ['🛐', '🙏', '⛪', '🧘'],
+      'meditation': ['🧘', '🙏', '🕯️'],
+      'candle': ['🕯️', '✨'],
+      'cross': ['✝️', '⛪'],
+      'angel': ['👼', '🕊️', '✨']
     };
 
     const lowerKeyword = keyword.toLowerCase();
