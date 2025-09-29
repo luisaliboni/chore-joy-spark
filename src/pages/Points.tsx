@@ -115,13 +115,11 @@ export default function Points() {
   const resetWeeklyPoints = async () => {
     if (!user) return;
 
-    try {
-      await supabase.rpc('reset_weekly_points', { target_user_id: user.id });
-      toast.success('Weekly points reset successfully!');
+    const { resetWeeklyData } = await import('@/lib/weekUtils');
+    const success = await resetWeeklyData(user.id);
+    
+    if (success) {
       fetchData();
-    } catch (error) {
-      console.error('Error resetting points:', error);
-      toast.error('Failed to reset points');
     }
   };
 
@@ -309,7 +307,7 @@ export default function Points() {
             className="flex items-center gap-2"
           >
             <RotateCcw className="h-4 w-4" />
-            Reset Weekly Points
+            Start New Week
           </Button>
         </div>
       </div>

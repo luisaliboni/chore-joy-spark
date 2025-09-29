@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { format, addDays, subDays } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import PointCelebration from '@/components/PointCelebration';
+import { toast } from 'sonner';
 import {
   DndContext,
   closestCenter,
@@ -168,7 +169,28 @@ export default function Chores() {
         .order('child_order');
 
       if (childrenData) {
-        setChildren(childrenData);
+        // Check if a new week has started for any child
+        const { isNewWeek, resetWeeklyData } = await import('@/lib/weekUtils');
+        const needsReset = childrenData.some(child => isNewWeek(child.week_start_date));
+        
+        if (needsReset) {
+          const success = await resetWeeklyData(user.id, false);
+          if (success) {
+            // Re-fetch children data after reset
+            const { data: updatedChildrenData } = await supabase
+              .from('children')
+              .select('*')
+              .eq('user_id', user.id)
+              .order('child_order');
+            
+            if (updatedChildrenData) {
+              setChildren(updatedChildrenData);
+              toast.success('New week detected! Points and tasks have been reset.');
+            }
+          }
+        } else {
+          setChildren(childrenData);
+        }
 
         // Fetch task assignments for current weekday
         const currentWeekday = currentDate.getDay();
