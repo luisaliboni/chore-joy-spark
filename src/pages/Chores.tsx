@@ -11,6 +11,8 @@ import {
   closestCenter,
   KeyboardSensor,
   PointerSensor,
+  TouchSensor,
+  MouseSensor,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
@@ -125,6 +127,17 @@ export default function Chores() {
   }>({ show: false, points: 0 });
 
   const sensors = useSensors(
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 100,
+        tolerance: 8,
+      },
+    }),
+    useSensor(MouseSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: 8,

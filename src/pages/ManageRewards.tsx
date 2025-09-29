@@ -10,7 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { ArrowLeft, Plus, Edit, Trash2, GripVertical } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, TouchSensor, MouseSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { useSortable } from '@dnd-kit/sortable';
@@ -117,6 +117,17 @@ export default function ManageRewards() {
   });
 
   const sensors = useSensors(
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 100,
+        tolerance: 8,
+      },
+    }),
+    useSensor(MouseSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: 8,
