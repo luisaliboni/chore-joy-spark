@@ -137,6 +137,26 @@ All colors MUST be HSL.
     @apply min-w-[48px] min-h-[48px] tablet:min-w-[56px] tablet:min-h-[56px];
     @apply flex items-center justify-center;
     @apply transition-colors hover:bg-accent/50 active:bg-accent;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+  
+  /* Mobile drag container optimizations */
+  .mobile-drag-container {
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  
+  /* Mobile drag item optimizations */
+  .mobile-drag-item {
+    will-change: transform;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
   }
   
   /* Responsive padding and margins */
