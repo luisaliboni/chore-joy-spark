@@ -65,16 +65,19 @@ function SortableRewardItem({ reward, onEdit, onDelete, onToggleAvailability }: 
         <GripVertical className="h-6 w-6 tablet:h-7 tablet:w-7 text-muted-foreground" />
       </div>
       {reward.icon && (
-        <div className="text-xl tablet:text-2xl desktop:text-3xl min-w-[2rem] h-8 tablet:h-10 desktop:h-12 flex items-center justify-center">
-          {reward.icon.startsWith('http') ? (
-            <img 
-              src={reward.icon} 
-              alt="Reward icon" 
-              className="icon-responsive object-cover rounded"
-            />
-          ) : (
-            reward.icon
-          )}
+        <div className="flex items-center gap-1 text-xl tablet:text-2xl desktop:text-3xl min-w-[2rem] h-8 tablet:h-10 desktop:h-12">
+          {reward.icon.split(',').filter(Boolean).map((icon, idx) => (
+            icon.startsWith('http') ? (
+              <img 
+                key={idx}
+                src={icon} 
+                alt="Reward icon" 
+                className="icon-responsive object-cover rounded"
+              />
+            ) : (
+              <span key={idx}>{icon}</span>
+            )
+          ))}
         </div>
       )}
       <div className="flex-1 min-w-0">
@@ -346,11 +349,12 @@ export default function ManageRewards() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label className="text-sm">Reward Icon</Label>
+                  <Label className="text-sm">Reward Icon (select multiple)</Label>
                 <IconSelector
                   selectedIcon={formData.icon}
-                  onIconSelect={(icon) => setFormData(prev => ({ ...prev, icon: typeof icon === 'string' ? icon : icon[0] || '' }))}
+                  onIconSelect={(icon) => setFormData(prev => ({ ...prev, icon: typeof icon === 'string' ? icon : '' }))}
                   compact={true}
+                  allowMultiple={true}
                   allowNoIcon={true}
                 />
                 </div>

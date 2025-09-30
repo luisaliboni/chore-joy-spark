@@ -10,8 +10,8 @@ import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 
 interface IconSelectorProps {
-  selectedIcon: string | string[];
-  onIconSelect: (icon: string | string[]) => void;
+  selectedIcon: string;
+  onIconSelect: (icon: string) => void;
   compact?: boolean;
   allowMultiple?: boolean;
   allowNoIcon?: boolean;
@@ -415,20 +415,61 @@ export function IconSelector({ selectedIcon, onIconSelect, compact = false, allo
   const filteredIcons = currentIcons;
 
   const handleIconClick = (icon: string) => {
-    if (allowMultiple && Array.isArray(selectedIcon)) {
-      const isSelected = selectedIcon.includes(icon);
+    if (allowMultiple) {
+      // Convert selectedIcon to array format
+      const selectedArray = Array.isArray(selectedIcon) 
+        ? selectedIcon 
+        : typeof selectedIcon === 'string' && selectedIcon 
+          ? selectedIcon.split(',').filter(Boolean)
+          : [];
+      
+      const isSelected = selectedArray.includes(icon);
       if (isSelected) {
-        onIconSelect(selectedIcon.filter(i => i !== icon));
+        const newSelection = selectedArray.filter(i => i !== icon);
+        onIconSelect(newSelection.join(','));
       } else {
-        onIconSelect([...selectedIcon, icon]);
+        const newSelection = [...selectedArray, icon];
+        onIconSelect(newSelection.join(','));
       }
     } else {
       onIconSelect(icon);
     }
   };
 
+  // Convert selectedIcon string to array for display
+  const selectedIconsArray = typeof selectedIcon === 'string' && selectedIcon 
+    ? selectedIcon.split(',').filter(Boolean)
+    : [];
+
   return (
     <div className="space-y-4">
+      {/* Selected Icons Display - Only show when multiple selection is enabled */}
+      {allowMultiple && selectedIconsArray.length > 0 && (
+        <div className="p-3 border rounded-lg bg-muted/30">
+          <Label className="text-sm mb-2 block">Selected Icons ({selectedIconsArray.length})</Label>
+          <div className="flex flex-wrap gap-2">
+            {selectedIconsArray.map((icon, idx) => (
+              <div key={idx} className="relative group">
+                <div className="w-12 h-12 flex items-center justify-center text-2xl border-2 border-primary rounded bg-background">
+                  {icon.startsWith('http') ? (
+                    <img src={icon} alt="Selected icon" className="w-10 h-10 object-cover rounded" />
+                  ) : (
+                    icon
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleIconClick(icon)}
+                  className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* No Icon Option */}
       {allowNoIcon && (
         <div className="p-2 border rounded-lg">
@@ -530,30 +571,30 @@ export function IconSelector({ selectedIcon, onIconSelect, compact = false, allo
               <div key={`${selectedCategory}-${index}`} className="relative group">
                 <div className="flex flex-col items-center">
                    <Button
-                     type="button"
-                     variant={(Array.isArray(selectedIcon) ? selectedIcon.includes(icon) : selectedIcon === icon) ? 'default' : 'outline'}
-                     className={`w-full aspect-square p-2 relative hover:scale-105 transition-transform touch-target ${
-                       compact 
-                         ? 'h-16 text-3xl mb-1' 
-                         : 'h-20 tablet:h-24 desktop:h-28 text-4xl tablet:text-5xl desktop:text-6xl mb-2'
-                     }`}
-                     onClick={() => handleIconClick(icon)}
-                  >
-                    {icon.startsWith('http') ? (
-                      <img 
-                        src={icon} 
-                        alt="Custom icon" 
-                        className={compact ? "w-12 h-12 object-cover rounded" : "w-16 h-16 tablet:w-20 tablet:h-20 desktop:w-24 desktop:h-24 object-cover rounded"}
-                      />
-                    ) : (
-                      icon
-                    )}
-                     {(Array.isArray(selectedIcon) ? selectedIcon.includes(icon) : selectedIcon === icon) && (
-                       <div className="absolute inset-0 bg-primary/20 rounded flex items-center justify-center">
-                         <div className={compact ? "w-3 h-3 bg-primary rounded-full" : "w-4 h-4 tablet:w-5 tablet:h-5 bg-primary rounded-full"}></div>
-                       </div>
+                      type="button"
+                      variant={selectedIconsArray.includes(icon) ? 'default' : 'outline'}
+                      className={`w-full aspect-square p-2 relative hover:scale-105 transition-transform touch-target ${
+                        compact 
+                          ? 'h-16 text-3xl mb-1' 
+                          : 'h-20 tablet:h-24 desktop:h-28 text-4xl tablet:text-5xl desktop:text-6xl mb-2'
+                      }`}
+                      onClick={() => handleIconClick(icon)}
+                   >
+                     {icon.startsWith('http') ? (
+                       <img 
+                         src={icon} 
+                         alt="Custom icon" 
+                         className={compact ? "w-12 h-12 object-cover rounded" : "w-16 h-16 tablet:w-20 tablet:h-20 desktop:w-24 desktop:h-24 object-cover rounded"}
+                       />
+                     ) : (
+                       icon
                      )}
-                  </Button>
+                      {selectedIconsArray.includes(icon) && (
+                        <div className="absolute inset-0 bg-primary/20 rounded flex items-center justify-center">
+                          <div className={compact ? "w-3 h-3 bg-primary rounded-full" : "w-4 h-4 tablet:w-5 tablet:h-5 bg-primary rounded-full"}></div>
+                        </div>
+                      )}
+                   </Button>
                   
                   {/* Icon Name */}
                   <span className={`font-medium text-center text-muted-foreground leading-tight max-w-full ${

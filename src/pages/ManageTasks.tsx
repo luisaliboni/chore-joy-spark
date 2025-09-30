@@ -61,12 +61,14 @@ function SortableTaskItem({ task, onEdit, onDelete }: {
   return (
     <div className="flex items-center gap-responsive p-responsive border rounded-lg bg-card">
       {task.icon && (
-        <div className="text-xl tablet:text-2xl desktop:text-3xl">
-          {task.icon.startsWith('http') ? (
-            <img src={task.icon} alt="Task icon" className="icon-responsive object-cover rounded" />
-          ) : (
-            task.icon
-          )}
+        <div className="flex items-center gap-1 text-xl tablet:text-2xl desktop:text-3xl">
+          {task.icon.split(',').filter(Boolean).map((icon, idx) => (
+            icon.startsWith('http') ? (
+              <img key={idx} src={icon} alt="Task icon" className="icon-responsive object-cover rounded" />
+            ) : (
+              <span key={idx}>{icon}</span>
+            )
+          ))}
         </div>
       )}
       <div className="flex-1 min-w-0">
@@ -110,12 +112,14 @@ function SortableAssignmentItem({ assignment }: { assignment: any }) {
           <GripVertical className="h-6 w-6 tablet:h-7 tablet:w-7 text-muted-foreground" />
         </div>
         {assignment.tasks.icon && (
-          <div className="text-xl">
-            {assignment.tasks.icon.startsWith('http') ? (
-              <img src={assignment.tasks.icon} alt="Task icon" className="w-6 h-6 object-cover rounded" />
-            ) : (
-              assignment.tasks.icon
-            )}
+          <div className="flex items-center gap-1 text-xl">
+            {assignment.tasks.icon.split(',').filter(Boolean).map((icon, idx) => (
+              icon.startsWith('http') ? (
+                <img key={idx} src={icon} alt="Task icon" className="w-6 h-6 object-cover rounded" />
+              ) : (
+                <span key={idx}>{icon}</span>
+              )
+            ))}
           </div>
         )}
         <div>
@@ -579,14 +583,15 @@ export default function ManageTasks() {
                     </div>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <Label className="text-sm">Task Icon</Label>
-                  <IconSelector
-                    selectedIcon={formData.icon}
-                    onIconSelect={(icon) => setFormData(prev => ({ ...prev, icon: typeof icon === 'string' ? icon : icon[0] || '' }))}
-                    compact={true}
-                    allowNoIcon={true}
-                  />
+                <div className="space-y-1.5">
+                  <Label className="text-sm">Task Icon (select multiple)</Label>
+                <IconSelector
+                  selectedIcon={formData.icon}
+                  onIconSelect={(icon) => setFormData(prev => ({ ...prev, icon: typeof icon === 'string' ? icon : '' }))}
+                  compact={true}
+                  allowMultiple={true}
+                  allowNoIcon={true}
+                />
                   </div>
 
                   {children.length > 0 && (

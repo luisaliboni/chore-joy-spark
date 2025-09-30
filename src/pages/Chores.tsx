@@ -78,12 +78,14 @@ function SortableTaskAssignment({ assignment, child, onComplete, onUndo }: {
       <div {...attributes} {...listeners} className="drag-handle">
         <GripVertical className="h-6 w-6 tablet:h-7 tablet:w-7 text-muted-foreground" />
       </div>
-      <div className="text-2xl tablet:text-3xl desktop:text-4xl">
-        {assignment.tasks.icon.startsWith('http') ? (
-          <img src={assignment.tasks.icon} alt="Task icon" className="icon-responsive object-cover rounded" />
-        ) : (
-          assignment.tasks.icon
-        )}
+      <div className="flex items-center gap-1 text-2xl tablet:text-3xl desktop:text-4xl">
+        {assignment.tasks.icon.split(',').filter(Boolean).map((icon, idx) => (
+          icon.startsWith('http') ? (
+            <img key={idx} src={icon} alt="Task icon" className="icon-responsive object-cover rounded" />
+          ) : (
+            <span key={idx}>{icon}</span>
+          )
+        ))}
       </div>
       <div className="flex-1 min-w-0">
         <h3 className={`font-medium text-responsive-sm ${assignment.is_completed ? 'line-through text-muted-foreground' : ''}`}>
