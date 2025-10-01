@@ -8,9 +8,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Plus, Save, Play, Trash2, Edit } from 'lucide-react';
+import { ArrowLeft, Plus, Save, Play, Trash2, Edit, GripVertical } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, horizontalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface Routine {
   id: string;
@@ -67,6 +70,13 @@ export default function ManageRoutines() {
     children: [] as string[],
     days: [] as string[]
   });
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   useEffect(() => {
     if (user) {
@@ -338,6 +348,155 @@ export default function ManageRoutines() {
       .filter(Boolean) as Task[];
   };
 
+  const handleDragEnd = async (event: DragEndEvent, routine: Routine) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const routineTasks = getTasksForRoutine(routine);
+      const oldIndex = routineTasks.findIndex(task => task.id === active.id);
+      const newIndex = routineTasks.findIndex(task => task.id === over.id);
+
+      const newTaskIds = arrayMove(routine.task_ids, oldIndex, newIndex);
+
+      // Optimistically update UI
+      setRoutines(prev => prev.map(r => 
+        r.id === routine.id ? { ...r, task_ids: newTaskIds } : r
+      ));
+
+      // Save to database
+      try {
+        await supabase
+          .from('routines')
+          .update({ task_ids: newTaskIds })
+          .eq('id', routine.id);
+        
+        toast.success('Task order updated');
+      } catch (error) {
+        console.error('Error updating task order:', error);
+        toast.error('Failed to update task order');
+        // Revert on error
+        fetchData();
+      }
+    }
+  };
+
+  const handleFormDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      setFormData(prev => {
+        const oldIndex = prev.selectedTasks.indexOf(active.id as string);
+        const newIndex = prev.selectedTasks.indexOf(over.id as string);
+        return {
+          ...prev,
+          selectedTasks: arrayMove(prev.selectedTasks, oldIndex, newIndex)
+        };
+      });
+    }
+  };
+
+  interface SortableTaskItemProps {
+    task: Task;
+    index: number;
+  }
+
+  const SortableTaskItem = ({ task, index }: SortableTaskItemProps) => {
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+      isDragging,
+    } = useSortable({ id: task.id });
+
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+      opacity: isDragging ? 0.5 : 1,
+    };
+
+    return (
+      <div
+        ref={setNodeRef}
+        style={style}
+        className="flex items-center gap-1 px-2 py-1 bg-muted rounded text-sm cursor-grab active:cursor-grabbing"
+      >
+        <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
+          <GripVertical className="h-4 w-4 text-muted-foreground" />
+        </div>
+        <span>{index + 1}.</span>
+        <div className="flex items-center gap-1">
+          {task.icon.split(',').map((icon, idx) => (
+            icon.startsWith('http') ? (
+              <img 
+                key={idx}
+                src={icon} 
+                alt="Task icon" 
+                className="w-4 h-4 object-cover rounded"
+              />
+            ) : (
+              <span key={idx}>{icon}</span>
+            )
+          ))}
+        </div>
+        <span>{task.title}</span>
+      </div>
+    );
+  };
+
+  interface SortableFormTaskProps {
+    task: Task;
+  }
+
+  const SortableFormTask = ({ task }: SortableFormTaskProps) => {
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+      isDragging,
+    } = useSortable({ id: task.id });
+
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+      opacity: isDragging ? 0.5 : 1,
+    };
+
+    return (
+      <div
+        ref={setNodeRef}
+        style={style}
+        className="flex items-center space-x-2 p-2 bg-muted/50 rounded"
+      >
+        <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
+          <GripVertical className="h-4 w-4 text-muted-foreground" />
+        </div>
+        <div className="flex items-center gap-2 flex-1">
+          <div className="flex items-center gap-1 text-xl">
+            {task.icon.split(',').map((icon, idx) => (
+              icon.startsWith('http') ? (
+                <img 
+                  key={idx}
+                  src={icon} 
+                  alt="Task icon" 
+                  className="w-5 h-5 object-cover rounded"
+                />
+              ) : (
+                <span key={idx}>{icon}</span>
+              )
+            ))}
+          </div>
+          <span className="flex-1">
+            {task.title} ({task.points} pts)
+          </span>
+        </div>
+      </div>
+    );
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -439,9 +598,28 @@ export default function ManageRoutines() {
                     ))}
                   </div>
                   {formData.selectedTasks.length > 0 && (
-                    <p className="text-sm text-muted-foreground">
-                      {formData.selectedTasks.length} tasks selected
-                    </p>
+                    <>
+                      <p className="text-sm text-muted-foreground">
+                        {formData.selectedTasks.length} tasks selected - Drag to reorder:
+                      </p>
+                      <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={handleFormDragEnd}
+                      >
+                        <SortableContext
+                          items={formData.selectedTasks}
+                          strategy={horizontalListSortingStrategy}
+                        >
+                          <div className="flex flex-wrap gap-2 p-4 border rounded bg-muted/30">
+                            {formData.selectedTasks.map((taskId) => {
+                              const task = tasks.find(t => t.id === taskId);
+                              return task ? <SortableFormTask key={task.id} task={task} /> : null;
+                            })}
+                          </div>
+                        </SortableContext>
+                      </DndContext>
+                    </>
                   )}
                 </div>
 
@@ -520,31 +698,25 @@ export default function ManageRoutines() {
                       <p className="text-sm text-muted-foreground">
                         {routineTasks.length} tasks • Total: {routineTasks.reduce((sum, task) => sum + task.points, 0)} points
                       </p>
-                      <div className="flex flex-wrap gap-2">
-                        {routineTasks.map((task, index) => (
-                          <div
-                            key={task.id}
-                            className="flex items-center gap-1 px-2 py-1 bg-muted rounded text-sm"
-                          >
-                            <span>{index + 1}.</span>
-                            <div className="flex items-center gap-1">
-                              {task.icon.split(',').map((icon, idx) => (
-                                icon.startsWith('http') ? (
-                                  <img 
-                                    key={idx}
-                                    src={icon} 
-                                    alt="Task icon" 
-                                    className="w-4 h-4 object-cover rounded"
-                                  />
-                                ) : (
-                                  <span key={idx}>{icon}</span>
-                                )
-                              ))}
-                            </div>
-                            <span>{task.title}</span>
+                      <p className="text-xs text-muted-foreground mb-2">
+                        Drag tasks to reorder
+                      </p>
+                      <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={(event) => handleDragEnd(event, routine)}
+                      >
+                        <SortableContext
+                          items={routineTasks.map(t => t.id)}
+                          strategy={horizontalListSortingStrategy}
+                        >
+                          <div className="flex flex-wrap gap-2">
+                            {routineTasks.map((task, index) => (
+                              <SortableTaskItem key={task.id} task={task} index={index} />
+                            ))}
                           </div>
-                        ))}
-                      </div>
+                        </SortableContext>
+                      </DndContext>
                     </div>
                   </CardContent>
                 </Card>
