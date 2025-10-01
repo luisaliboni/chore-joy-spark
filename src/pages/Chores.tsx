@@ -69,13 +69,13 @@ function SortableTaskAssignment({ assignment, child, onComplete, onUndo }: {
     <div
       ref={setNodeRef}
       style={style}
-      className={`mobile-drag-item flex items-center gap-responsive p-responsive rounded-lg border transition-all ${
+      className={`flex items-center gap-responsive p-responsive rounded-lg border transition-all ${
         assignment.is_completed
           ? 'bg-success/10 border-success/20'
           : 'bg-card hover:bg-accent/50'
       }`}
     >
-      <div {...attributes} {...listeners} className="drag-handle">
+      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-3 -m-3 min-w-[48px] min-h-[48px] tablet:min-w-[56px] tablet:min-h-[56px] flex items-center justify-center touch-target" style={{ touchAction: 'none' }}>
         <GripVertical className="h-6 w-6 tablet:h-7 tablet:w-7 text-muted-foreground" />
       </div>
       <div className="flex items-center gap-1 text-2xl tablet:text-3xl desktop:text-4xl">
@@ -411,7 +411,7 @@ export default function Chores() {
               </div>
 
               {/* Tasks */}
-              <div className="mobile-drag-container space-y-3">
+              <div className="space-y-3">
                 {(!taskAssignments[child.id] || taskAssignments[child.id].length === 0) ? (
                   <div className="text-center py-8 text-muted-foreground">
                     No tasks assigned for today
