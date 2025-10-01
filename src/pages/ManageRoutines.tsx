@@ -417,7 +417,20 @@ export default function ManageRoutines() {
                           }}
                         />
                         <div className="flex items-center gap-2 flex-1">
-                          <span className="text-xl">{task.icon}</span>
+                          <div className="flex items-center gap-1 text-xl">
+                            {task.icon.split(',').map((icon, idx) => (
+                              icon.startsWith('http') ? (
+                                <img 
+                                  key={idx}
+                                  src={icon} 
+                                  alt="Task icon" 
+                                  className="w-5 h-5 object-cover rounded"
+                                />
+                              ) : (
+                                <span key={idx}>{icon}</span>
+                              )
+                            ))}
+                          </div>
                           <Label htmlFor={`task-${task.id}`} className="flex-1">
                             {task.title} ({task.points} pts)
                           </Label>
@@ -514,7 +527,20 @@ export default function ManageRoutines() {
                             className="flex items-center gap-1 px-2 py-1 bg-muted rounded text-sm"
                           >
                             <span>{index + 1}.</span>
-                            <span>{task.icon}</span>
+                            <div className="flex items-center gap-1">
+                              {task.icon.split(',').map((icon, idx) => (
+                                icon.startsWith('http') ? (
+                                  <img 
+                                    key={idx}
+                                    src={icon} 
+                                    alt="Task icon" 
+                                    className="w-4 h-4 object-cover rounded"
+                                  />
+                                ) : (
+                                  <span key={idx}>{icon}</span>
+                                )
+                              ))}
+                            </div>
                             <span>{task.title}</span>
                           </div>
                         ))}
