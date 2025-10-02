@@ -261,6 +261,7 @@ export default function ManageRoutines() {
             : 0;
           
           // Create assignments for all tasks in the routine that don't already exist
+          let orderOffset = 0;
           for (let i = 0; i < selectedRoutine.task_ids.length; i++) {
             const taskId = selectedRoutine.task_ids[i];
             if (!existingTaskIds.has(taskId)) {
@@ -270,8 +271,9 @@ export default function ManageRoutines() {
                 child_id: childId,
                 assigned_date: dateStr,
                 weekday: day,
-                display_order: startOrder + i
+                display_order: startOrder + orderOffset
               });
+              orderOffset++;
             }
           }
         }
