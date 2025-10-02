@@ -42,13 +42,13 @@ interface RoutineFormData {
 }
 
 const DAYS_OF_WEEK = [
-  { id: 'monday', label: 'Monday' },
-  { id: 'tuesday', label: 'Tuesday' },
-  { id: 'wednesday', label: 'Wednesday' },
-  { id: 'thursday', label: 'Thursday' },
-  { id: 'friday', label: 'Friday' },
-  { id: 'saturday', label: 'Saturday' },
-  { id: 'sunday', label: 'Sunday' }
+  { id: 1, label: 'Monday' },
+  { id: 2, label: 'Tuesday' },
+  { id: 3, label: 'Wednesday' },
+  { id: 4, label: 'Thursday' },
+  { id: 5, label: 'Friday' },
+  { id: 6, label: 'Saturday' },
+  { id: 0, label: 'Sunday' }
 ];
 
 export default function ManageRoutines() {
@@ -68,7 +68,7 @@ export default function ManageRoutines() {
   });
   const [applyData, setApplyData] = useState({
     children: [] as string[],
-    days: [] as string[]
+    days: [] as number[]
   });
 
   const sensors = useSensors(
@@ -224,8 +224,8 @@ export default function ManageRoutines() {
           // Calculate the date for the current week's occurrence of this day
           const today = new Date();
           const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
-          const dayIndex = DAYS_OF_WEEK.findIndex(d => d.id === day);
-          const targetDayOfWeek = (dayIndex + 1) % 7; // Convert to JS day format (0 = Sunday)
+          // day is already in the correct format (0-6 where 0 = Sunday)
+          const targetDayOfWeek = day;
           
           // Get the start of current week (Sunday)
           const startOfWeek = new Date(today);
@@ -246,19 +246,31 @@ export default function ManageRoutines() {
 
           const existingTaskIds = new Set(existingAssignments?.map(a => a.task_id) || []);
           
+          // Get the highest display_order for existing assignments on this day
+          const { data: maxOrderData } = await supabase
+            .from('task_assignments')
+            .select('display_order')
+            .eq('user_id', user.id)
+            .eq('child_id', childId)
+            .eq('weekday', day)
+            .order('display_order', { ascending: false })
+            .limit(1);
+          
+          const startOrder = maxOrderData && maxOrderData.length > 0 
+            ? maxOrderData[0].display_order + 1 
+            : 0;
+          
           // Create assignments for all tasks in the routine that don't already exist
           for (let i = 0; i < selectedRoutine.task_ids.length; i++) {
             const taskId = selectedRoutine.task_ids[i];
             if (!existingTaskIds.has(taskId)) {
-              // Find the task to get its display_order
-              const task = tasks.find(t => t.id === taskId);
-              
               assignments.push({
                 user_id: user.id,
                 task_id: taskId,
                 child_id: childId,
                 assigned_date: dateStr,
-                display_order: task?.display_order ?? i
+                weekday: day,
+                display_order: startOrder + i
               });
             }
           }
