@@ -246,13 +246,13 @@ export default function ManageRoutines() {
 
           const existingTaskIds = new Set(existingAssignments?.map(a => a.task_id) || []);
           
-          // Get the highest display_order for existing assignments on this day
+          // Get the highest display_order for existing assignments on this date
           const { data: maxOrderData } = await supabase
             .from('task_assignments')
             .select('display_order')
             .eq('user_id', user.id)
             .eq('child_id', childId)
-            .eq('weekday', day)
+            .eq('assigned_date', dateStr)
             .order('display_order', { ascending: false })
             .limit(1);
           
