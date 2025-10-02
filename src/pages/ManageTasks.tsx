@@ -87,7 +87,7 @@ function SortableTaskItem({ task, onEdit, onDelete }: {
   );
 }
 
-function SortableAssignmentItem({ assignment }: { assignment: any }) {
+function SortableAssignmentItem({ assignment, onDelete }: { assignment: any; onDelete: (id: string) => void }) {
   const {
     attributes,
     listeners,
@@ -131,12 +131,22 @@ function SortableAssignmentItem({ assignment }: { assignment: any }) {
           </div>
         </div>
       </div>
-      <div className="text-sm">
-        {assignment.is_completed ? (
-          <span className="text-success">✅ Completed</span>
-        ) : (
-          <span className="text-muted-foreground">⏳ Pending</span>
-        )}
+      <div className="flex items-center gap-2">
+        <div className="text-sm">
+          {assignment.is_completed ? (
+            <span className="text-success">✅ Completed</span>
+          ) : (
+            <span className="text-muted-foreground">⏳ Pending</span>
+          )}
+        </div>
+        <Button 
+          size="sm" 
+          variant="ghost" 
+          onClick={() => onDelete(assignment.id)} 
+          className="touch-target text-destructive hover:text-destructive hover:bg-destructive/10"
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
       </div>
     </div>
   );
@@ -484,6 +494,54 @@ export default function ManageTasks() {
     }
   };
 
+  const handleDeleteAssignment = async (assignmentId: string) => {
+    try {
+      // Get assignment data before deleting
+      const { data: assignmentToDelete } = await supabase
+        .from('task_assignments')
+        .select('*')
+        .eq('id', assignmentId)
+        .single();
+
+      if (!assignmentToDelete) {
+        toast.error('Assignment not found');
+        return;
+      }
+
+      // Delete the assignment
+      await supabase
+        .from('task_assignments')
+        .delete()
+        .eq('id', assignmentId);
+      
+      // Show undo toast
+      toast.success('Task removed from day!', {
+        action: {
+          label: 'Undo',
+          onClick: async () => {
+            try {
+              await supabase
+                .from('task_assignments')
+                .insert(assignmentToDelete);
+
+              toast.success('Task restored!');
+              fetchData();
+            } catch (error) {
+              console.error('Error restoring assignment:', error);
+              toast.error('Failed to restore task');
+            }
+          }
+        },
+        duration: 10000
+      });
+      
+      fetchData();
+    } catch (error) {
+      console.error('Error deleting assignment:', error);
+      toast.error('Failed to delete assignment');
+    }
+  };
+
   const handleDragEnd = async (event: any) => {
     const { active, over } = event;
 
@@ -756,6 +814,7 @@ export default function ManageTasks() {
                           <SortableAssignmentItem
                             key={assignment.id}
                             assignment={assignment}
+                            onDelete={handleDeleteAssignment}
                           />
                         ))}
                       </div>
