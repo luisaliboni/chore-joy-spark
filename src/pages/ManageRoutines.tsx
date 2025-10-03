@@ -296,20 +296,31 @@ export default function ManageRoutines() {
             ? maxOrderData[0].display_order + 1 
             : 0;
           
+          console.log(`Child ${childId}, Date ${dateStr}:`, {
+            existingCount: existingTaskIds.size,
+            maxOrder: maxOrderData?.[0]?.display_order,
+            startOrder,
+            routineTaskCount: filteredTaskIds.length
+          });
+          
           // Create assignments for all valid tasks in the routine that don't already exist
           let orderOffset = 0;
           for (let i = 0; i < filteredTaskIds.length; i++) {
             const taskId = filteredTaskIds[i];
             if (!existingTaskIds.has(taskId)) {
+              const newOrder = startOrder + orderOffset;
+              console.log(`Adding task ${i} (${taskId.substring(0, 8)}...) with display_order ${newOrder}`);
               assignments.push({
                 user_id: user.id,
                 task_id: taskId,
                 child_id: childId,
                 assigned_date: dateStr,
                 weekday: day,
-                display_order: startOrder + orderOffset
+                display_order: newOrder
               });
               orderOffset++;
+            } else {
+              console.log(`Skipping task ${i} (${taskId.substring(0, 8)}...) - already exists`);
             }
           }
         }
