@@ -340,7 +340,6 @@ export default function ManageRewards() {
                     id="cost"
                     type="number"
                     min="1"
-                    max="100"
                     value={formData.cost_points}
                     onChange={(e) => setFormData(prev => ({ ...prev, cost_points: parseInt(e.target.value) || 1 }))}
                     required
