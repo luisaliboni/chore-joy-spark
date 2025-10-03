@@ -217,6 +217,26 @@ export default function ManageRoutines() {
     }
 
     try {
+      // First, verify all tasks in the routine still exist
+      const { data: validTasks } = await supabase
+        .from('tasks')
+        .select('id')
+        .in('id', selectedRoutine.task_ids)
+        .eq('user_id', user.id);
+      
+      const validTaskIds = new Set(validTasks?.map(t => t.id) || []);
+      const filteredTaskIds = selectedRoutine.task_ids.filter(id => validTaskIds.has(id));
+      
+      if (filteredTaskIds.length === 0) {
+        toast.error('All tasks in this routine have been deleted. Please update the routine.');
+        return;
+      }
+      
+      if (filteredTaskIds.length < selectedRoutine.task_ids.length) {
+        const deletedCount = selectedRoutine.task_ids.length - filteredTaskIds.length;
+        toast.warning(`${deletedCount} task${deletedCount > 1 ? 's' : ''} from this routine no longer exist and will be skipped.`);
+      }
+      
       const assignments = [];
       
       for (const childId of applyData.children) {
@@ -276,10 +296,10 @@ export default function ManageRoutines() {
             ? maxOrderData[0].display_order + 1 
             : 0;
           
-          // Create assignments for all tasks in the routine that don't already exist
+          // Create assignments for all valid tasks in the routine that don't already exist
           let orderOffset = 0;
-          for (let i = 0; i < selectedRoutine.task_ids.length; i++) {
-            const taskId = selectedRoutine.task_ids[i];
+          for (let i = 0; i < filteredTaskIds.length; i++) {
+            const taskId = filteredTaskIds[i];
             if (!existingTaskIds.has(taskId)) {
               assignments.push({
                 user_id: user.id,
