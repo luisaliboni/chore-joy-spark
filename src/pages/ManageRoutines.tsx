@@ -227,21 +227,28 @@ export default function ManageRoutines() {
           // day is the weekday number (0 = Sunday, 1 = Monday, etc.)
           const targetDayOfWeek = day;
           
-          // Get the start of current week (Sunday)
+          // Get the start of current week (Sunday) in local time
           const startOfWeek = new Date(today);
           startOfWeek.setDate(today.getDate() - currentDay);
-          startOfWeek.setHours(0, 0, 0, 0); // Reset to start of day
+          startOfWeek.setHours(0, 0, 0, 0);
           
-          // Calculate the target date for this week
+          // Calculate the target date for this week in local time
           const targetDate = new Date(startOfWeek);
           targetDate.setDate(startOfWeek.getDate() + targetDayOfWeek);
-          const dateStr = targetDate.toISOString().split('T')[0];
+          
+          // Format date as YYYY-MM-DD in local timezone
+          const year = targetDate.getFullYear();
+          const month = String(targetDate.getMonth() + 1).padStart(2, '0');
+          const dayOfMonth = String(targetDate.getDate()).padStart(2, '0');
+          const dateStr = `${year}-${month}-${dayOfMonth}`;
           
           console.log('Applying routine:', {
             day,
             targetDayOfWeek,
-            startOfWeek: startOfWeek.toISOString(),
-            targetDate: targetDate.toISOString(),
+            currentDay,
+            todayLocal: today.toLocaleDateString(),
+            startOfWeek: startOfWeek.toLocaleDateString(),
+            targetDate: targetDate.toLocaleDateString(),
             dateStr
           });
           
