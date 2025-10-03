@@ -224,17 +224,26 @@ export default function ManageRoutines() {
           // Calculate the date for the current week's occurrence of this day
           const today = new Date();
           const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
-          // day is already in the correct format (0-6 where 0 = Sunday)
+          // day is the weekday number (0 = Sunday, 1 = Monday, etc.)
           const targetDayOfWeek = day;
           
           // Get the start of current week (Sunday)
           const startOfWeek = new Date(today);
           startOfWeek.setDate(today.getDate() - currentDay);
+          startOfWeek.setHours(0, 0, 0, 0); // Reset to start of day
           
           // Calculate the target date for this week
           const targetDate = new Date(startOfWeek);
           targetDate.setDate(startOfWeek.getDate() + targetDayOfWeek);
           const dateStr = targetDate.toISOString().split('T')[0];
+          
+          console.log('Applying routine:', {
+            day,
+            targetDayOfWeek,
+            startOfWeek: startOfWeek.toISOString(),
+            targetDate: targetDate.toISOString(),
+            dateStr
+          });
           
           // Check for existing assignments for this child and date
           const { data: existingAssignments } = await supabase
@@ -279,11 +288,20 @@ export default function ManageRoutines() {
         }
       }
 
+      console.log('Total assignments to create:', assignments);
+      
       if (assignments.length > 0) {
-        await supabase
+        const { data, error } = await supabase
           .from('task_assignments')
-          .insert(assignments);
+          .insert(assignments)
+          .select();
         
+        if (error) {
+          console.error('Insert error:', error);
+          throw error;
+        }
+        
+        console.log('Successfully inserted:', data);
         toast.success(`Routine applied successfully! Created ${assignments.length} task assignments.`);
       } else {
         toast.info('All tasks from this routine are already assigned for the selected days.');
